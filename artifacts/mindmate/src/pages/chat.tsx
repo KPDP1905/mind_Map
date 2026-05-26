@@ -36,7 +36,7 @@ export function ChatList() {
     <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in duration-500">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">AI Companion</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">Your Mind's Doctor</h1>
           <p className="text-muted-foreground mt-1 text-lg">A safe space to talk through your thoughts.</p>
         </div>
         <Button onClick={handleNewConversation} disabled={createConv.isPending} className="rounded-full">
@@ -77,7 +77,7 @@ export function ChatList() {
             <MessageCircle className="w-8 h-8" />
           </div>
           <h3 className="text-lg font-semibold text-foreground mb-2">No conversations yet</h3>
-          <p className="text-muted-foreground mb-6">Start a new chat to talk with your AI companion.</p>
+          <p className="text-muted-foreground mb-6">Start a new chat to talk with Your Mind's Doctor.</p>
           <Button onClick={handleNewConversation} disabled={createConv.isPending} className="rounded-full">
             <Plus className="w-4 h-4 mr-2" />
             Start Chat
@@ -193,7 +193,7 @@ export function ChatSession({ id }: { id: string }) {
         </Link>
         <div>
           <h2 className="font-semibold text-foreground">{conversation?.title || "Chat"}</h2>
-          <p className="text-xs text-muted-foreground">AI Companion</p>
+          <p className="text-xs text-muted-foreground">Your Mind's Doctor</p>
         </div>
       </div>
 
