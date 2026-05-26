@@ -3,20 +3,29 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: MindMate AI — Mental Wellness API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: moods
+    description: Mood tracking
+  - name: journal
+    description: Journal entries
+  - name: wellness
+    description: Wellness tools (breathing, affirmations, CBT, gratitude)
+  - name: dashboard
+    description: Dashboard analytics
+  - name: openai
+    description: OpenAI AI chat operations
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,6 +33,461 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  # ── Mood Tracker ──────────────────────────────────────────
+  /moods:
+    get:
+      operationId: listMoods
+      tags: [moods]
+      summary: List mood entries for the current user
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+        - name: startDate
+          in: query
+          schema:
+            type: string
+        - name: endDate
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of mood entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/MoodEntry"
+    post:
+      operationId: createMood
+      tags: [moods]
+      summary: Log a mood entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MoodInput"
+      responses:
+        "201":
+          description: Created mood entry
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MoodEntry"
+  /moods/{id}:
+    get:
+      operationId: getMood
+      tags: [moods]
+      summary: Get a single mood entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Mood entry
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MoodEntry"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateMood
+      tags: [moods]
+      summary: Update a mood entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MoodUpdate"
+      responses:
+        "200":
+          description: Updated mood entry
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MoodEntry"
+    delete:
+      operationId: deleteMood
+      tags: [moods]
+      summary: Delete a mood entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+  /moods/analytics/weekly:
+    get:
+      operationId: getWeeklyMoodAnalytics
+      tags: [moods]
+      summary: Get weekly mood analytics for the current user
+      responses:
+        "200":
+          description: Weekly mood analytics
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WeeklyMoodAnalytics"
+  /moods/analytics/streak:
+    get:
+      operationId: getMoodStreak
+      tags: [moods]
+      summary: Get current tracking streak
+      responses:
+        "200":
+          description: Streak data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MoodStreak"
+
+  # ── Journal ───────────────────────────────────────────────
+  /journal:
+    get:
+      operationId: listJournalEntries
+      tags: [journal]
+      summary: List journal entries for the current user
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+        - name: offset
+          in: query
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of journal entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/JournalEntry"
+    post:
+      operationId: createJournalEntry
+      tags: [journal]
+      summary: Create a journal entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JournalInput"
+      responses:
+        "201":
+          description: Created journal entry
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JournalEntry"
+  /journal/{id}:
+    get:
+      operationId: getJournalEntry
+      tags: [journal]
+      summary: Get a journal entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Journal entry
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JournalEntry"
+        "404":
+          description: Not found
+    patch:
+      operationId: updateJournalEntry
+      tags: [journal]
+      summary: Update a journal entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/JournalUpdate"
+      responses:
+        "200":
+          description: Updated journal entry
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/JournalEntry"
+    delete:
+      operationId: deleteJournalEntry
+      tags: [journal]
+      summary: Delete a journal entry
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  # ── Wellness Tools ─────────────────────────────────────────
+  /wellness/affirmations:
+    get:
+      operationId: listAffirmations
+      tags: [wellness]
+      summary: Get daily affirmations
+      responses:
+        "200":
+          description: List of affirmations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Affirmation"
+  /wellness/affirmations/daily:
+    get:
+      operationId: getDailyAffirmation
+      tags: [wellness]
+      summary: Get today's affirmation
+      responses:
+        "200":
+          description: Today's affirmation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Affirmation"
+  /wellness/exercises:
+    get:
+      operationId: listWellnessExercises
+      tags: [wellness]
+      summary: List wellness exercises (breathing, CBT, gratitude)
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [breathing, cbt, gratitude]
+      responses:
+        "200":
+          description: List of exercises
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/WellnessExercise"
+  /wellness/gratitude:
+    get:
+      operationId: listGratitudeEntries
+      tags: [wellness]
+      summary: List gratitude journal entries
+      responses:
+        "200":
+          description: List of gratitude entries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/GratitudeEntry"
+    post:
+      operationId: createGratitudeEntry
+      tags: [wellness]
+      summary: Add a gratitude entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GratitudeInput"
+      responses:
+        "201":
+          description: Created gratitude entry
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/GratitudeEntry"
+  /wellness/score:
+    get:
+      operationId: getDailyWellnessScore
+      tags: [wellness]
+      summary: Get today's computed wellness score
+      responses:
+        "200":
+          description: Daily wellness score
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WellnessScore"
+
+  # ── Dashboard ──────────────────────────────────────────────
+  /dashboard/summary:
+    get:
+      operationId: getDashboardSummary
+      tags: [dashboard]
+      summary: Dashboard summary — mood averages, streaks, activity counts, wellness score
+      responses:
+        "200":
+          description: Dashboard summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardSummary"
+  /dashboard/activity:
+    get:
+      operationId: getDashboardActivity
+      tags: [dashboard]
+      summary: Recent activity feed
+      responses:
+        "200":
+          description: Activity items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ActivityItem"
+
+  # ── AI Chat ────────────────────────────────────────────────
+  /openai/conversations:
+    get:
+      operationId: listOpenaiConversations
+      tags: [openai]
+      summary: List all AI conversations
+      responses:
+        "200":
+          description: List of conversations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OpenaiConversation"
+    post:
+      operationId: createOpenaiConversation
+      tags: [openai]
+      summary: Create a new AI conversation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpenaiConversationInput"
+      responses:
+        "201":
+          description: Created conversation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpenaiConversation"
+  /openai/conversations/{id}:
+    get:
+      operationId: getOpenaiConversation
+      tags: [openai]
+      summary: Get conversation with messages
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Conversation with messages
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OpenaiConversationWithMessages"
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteOpenaiConversation
+      tags: [openai]
+      summary: Delete a conversation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+  /openai/conversations/{id}/messages:
+    get:
+      operationId: listOpenaiMessages
+      tags: [openai]
+      summary: List messages in a conversation
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: List of messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/OpenaiMessage"
+    post:
+      operationId: sendOpenaiMessage
+      tags: [openai]
+      summary: Send a message and receive a streaming AI response
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/OpenaiMessageInput"
+      responses:
+        "200":
+          description: SSE stream of assistant text chunks
+          content:
+            text/event-stream: {}
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +498,294 @@ components:
       required:
         - status
 
+    # ── Mood ───────────────────────────────────────────────────
+    MoodEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: string
+        mood:
+          type: string
+        emoji:
+          type: string
+        score:
+          type: integer
+        note:
+          type: ["string", "null"]
+        date:
+          type: string
+          format: date
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, userId, mood, emoji, score, date, createdAt]
+    MoodInput:
+      type: object
+      properties:
+        mood:
+          type: string
+        emoji:
+          type: string
+        score:
+          type: integer
+        note:
+          type: string
+        date:
+          type: string
+          format: date
+      required: [mood, emoji, score, date]
+    MoodUpdate:
+      type: object
+      properties:
+        mood:
+          type: string
+        emoji:
+          type: string
+        score:
+          type: integer
+        note:
+          type: string
+    WeeklyMoodAnalytics:
+      type: object
+      properties:
+        days:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+              averageScore:
+                type: number
+              mood:
+                type: ["string", "null"]
+              emoji:
+                type: ["string", "null"]
+            required: [date, averageScore]
+        averageScore:
+          type: number
+        dominantMood:
+          type: ["string", "null"]
+        totalEntries:
+          type: integer
+      required: [days, averageScore, totalEntries]
+    MoodStreak:
+      type: object
+      properties:
+        currentStreak:
+          type: integer
+        longestStreak:
+          type: integer
+        lastLoggedDate:
+          type: ["string", "null"]
+      required: [currentStreak, longestStreak]
+
+    # ── Journal ────────────────────────────────────────────────
+    JournalEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: string
+        title:
+          type: string
+        content:
+          type: string
+        tags:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+      required: [id, userId, title, content, createdAt, updatedAt]
+    JournalInput:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        tags:
+          type: string
+      required: [title, content]
+    JournalUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        tags:
+          type: string
+
+    # ── Wellness ───────────────────────────────────────────────
+    Affirmation:
+      type: object
+      properties:
+        id:
+          type: integer
+        text:
+          type: string
+        category:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, text, category, createdAt]
+    WellnessExercise:
+      type: object
+      properties:
+        id:
+          type: integer
+        type:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        durationSeconds:
+          type: integer
+        steps:
+          type: string
+      required: [id, type, title, description, durationSeconds, steps]
+    GratitudeEntry:
+      type: object
+      properties:
+        id:
+          type: integer
+        userId:
+          type: string
+        text:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, userId, text, createdAt]
+    GratitudeInput:
+      type: object
+      properties:
+        text:
+          type: string
+      required: [text]
+    WellnessScore:
+      type: object
+      properties:
+        score:
+          type: integer
+        components:
+          type: object
+          properties:
+            moodScore:
+              type: integer
+            journalScore:
+              type: integer
+            gratitudeScore:
+              type: integer
+            exerciseScore:
+              type: integer
+          required: [moodScore, journalScore, gratitudeScore, exerciseScore]
+        date:
+          type: string
+          format: date
+      required: [score, components, date]
+
+    # ── Dashboard ──────────────────────────────────────────────
+    DashboardSummary:
+      type: object
+      properties:
+        weeklyAverageMood:
+          type: number
+        currentStreak:
+          type: integer
+        journalCount:
+          type: integer
+        wellnessScore:
+          type: integer
+        conversationCount:
+          type: integer
+        topMood:
+          type: ["string", "null"]
+        topEmoji:
+          type: ["string", "null"]
+      required: [weeklyAverageMood, currentStreak, journalCount, wellnessScore, conversationCount]
+    ActivityItem:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+        description:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        emoji:
+          type: ["string", "null"]
+      required: [id, type, description, timestamp]
+
+    # ── OpenAI Chat ────────────────────────────────────────────
+    OpenaiConversation:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, title, createdAt]
+    OpenaiMessage:
+      type: object
+      properties:
+        id:
+          type: integer
+        conversationId:
+          type: integer
+        role:
+          type: string
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+      required: [id, conversationId, role, content, createdAt]
+    OpenaiConversationInput:
+      type: object
+      properties:
+        title:
+          type: string
+      required: [title]
+    OpenaiMessageInput:
+      type: object
+      properties:
+        content:
+          type: string
+      required: [content]
+    OpenaiConversationWithMessages:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        messages:
+          type: array
+          items:
+            $ref: "#/components/schemas/OpenaiMessage"
+      required: [id, title, createdAt, messages]
+    OpenaiError:
+      type: object
+      properties:
+        error:
+          type: string
+      required: [error]
