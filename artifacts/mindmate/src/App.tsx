@@ -6,6 +6,7 @@ import { useEffect, useRef } from "react";
 import { ClerkProvider, SignIn, SignUp, Show, useClerk } from "@clerk/react";
 import { publishableKeyFromHost } from "@clerk/react/internal";
 import { shadcn } from "@clerk/themes";
+import { ErrorBoundary } from "@/components/error-boundary";
 
 import LandingPage from "./pages/landing";
 import DashboardPage from "./pages/dashboard";
@@ -198,9 +199,11 @@ function Router() {
 
 function App() {
   return (
-    <WouterRouter base={basePath}>
-      <Router />
-    </WouterRouter>
+    <ErrorBoundary>
+      <WouterRouter base={basePath}>
+        <Router />
+      </WouterRouter>
+    </ErrorBoundary>
   );
 }
 
