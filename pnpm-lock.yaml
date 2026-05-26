@@ -178,6 +178,9 @@ importers:
       '@workspace/db':
         specifier: workspace:*
         version: link:../../lib/db
+      '@workspace/integrations-openai-ai-server':
+        specifier: workspace:*
+        version: link:../../lib/integrations-openai-ai-server
       cookie-parser:
         specifier: ^1.4.7
         version: 1.4.7
@@ -233,6 +236,9 @@ importers:
       '@clerk/themes':
         specifier: ^2.4.57
         version: 2.4.57(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@workspace/integrations-openai-ai-react':
+        specifier: workspace:*
+        version: link:../../lib/integrations-openai-ai-react
       internal:
         specifier: link:@clerk/react/internal
         version: link:@clerk/react/internal
@@ -653,7 +659,14 @@ importers:
         specifier: ^0.31.10
         version: 0.31.10
 
-  lib/integrations-openai-ai-react: {}
+  lib/integrations-openai-ai-react:
+    devDependencies:
+      '@types/react':
+        specifier: 'catalog:'
+        version: 19.2.14
+      react:
+        specifier: 'catalog:'
+        version: 19.1.0
 
   lib/integrations-openai-ai-server:
     dependencies:
