@@ -1,0 +1,133 @@
+Project Name:
+MindMate AI
+
+Project Description:
+Create a modern AI-powered psychology and mental wellness web application for students and young adults. The app should help users track emotions, reduce stress, improve mental wellness, and receive supportive AI-generated psychology guidance.
+
+Target Platform:
+Web Application (mobile responsive)
+
+Operating Environment:
+Online
+
+Hosting:
+Use Replit deployment hosting.
+
+Tech Stack:
+Frontend:
+
+* React
+* Tailwind CSS
+
+Backend:
+
+* Node.js + Express
+
+Database:
+
+* Supabase or Firebase
+
+Authentication:
+
+* Email/password login
+* Google login
+
+Main Features:
+
+1. User Authentication
+
+* Signup/login/logout
+* Forgot password
+* User profile page
+
+2. Mood Tracker
+
+* Daily mood selection
+* Emoji-based mood system
+* Notes/journal entry
+* Mood history calendar
+* Weekly emotional analytics
+
+3. AI Psychology Chat
+
+* AI chatbot for emotional support
+* Use OpenAI API integration
+* Friendly and empathetic responses
+* Crisis disclaimer
+* Save chat history
+
+4. Daily Mental Wellness Tools
+
+* Breathing exercises
+* Daily affirmations
+* CBT mini exercises
+* Gratitude journal
+
+5. Dashboard
+
+* Mood analytics charts
+* Daily wellness score
+* Activity tracking
+
+6. Notifications
+
+* Daily mood reminder
+* Motivation notifications
+
+7. Admin Panel
+
+* Manage users
+* View app analytics
+* Manage affirmations and exercises
+
+UI/UX Style:
+
+* Modern
+* Minimal
+* Calm psychology-inspired colors
+* Beautiful animations
+* Mobile-first responsive design
+
+Color Palette:
+
+* Soft blue
+* Lavender
+* White
+* Pastel gradients
+
+Pages Required:
+
+* Landing page
+* Login/Register
+* Dashboard
+* Mood tracker
+* AI Chat page
+* Wellness tools
+* Journal page
+* Profile settings
+* Admin panel
+
+Monetization:
+
+* Free basic plan
+* Premium subscription
+* Ad integration placeholder
+
+Security:
+
+* Secure authentication
+* Environment variables for API keys
+* Input validation
+
+Additional Requirements:
+
+* Clean folder structure
+* Reusable React components
+* Responsive design
+* Beginner-friendly code comments
+* Step-by-step setup instructions
+* Deployment-ready
+
+Important:
+Explain every step clearly because I am a beginner developer and psychology student.
+Generate the project step by step and test each feature before moving to the next one.
