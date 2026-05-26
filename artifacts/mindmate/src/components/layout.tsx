@@ -48,7 +48,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary">
           <Sparkles className="w-5 h-5" />
         </div>
-        <span className="text-xl font-bold tracking-tight">MindMate</span>
+        <span className="text-xl font-bold tracking-tight">Calmora</span>
       </div>
       <nav className="flex-1 px-4 space-y-1">
         {navItems.map((item) => {
@@ -107,7 +107,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-primary">
               <Sparkles className="w-3 h-3" />
             </div>
-            <span className="text-lg font-bold tracking-tight">MindMate</span>
+            <span className="text-lg font-bold tracking-tight">Calmora</span>
           </div>
           <Sheet>
             <SheetTrigger asChild>
