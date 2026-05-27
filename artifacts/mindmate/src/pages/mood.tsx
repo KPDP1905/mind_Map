@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { motion, AnimatePresence } from "framer-motion";
-import { Music, ExternalLink, Gamepad2 } from "lucide-react";
+import { Music, ExternalLink, Gamepad2, Youtube } from "lucide-react";
 import { Link } from "wouter";
 
 const MOODS = [
@@ -19,39 +19,112 @@ const MOODS = [
   { mood: "Amazing",  emoji: "😄", score: 10, color: "bg-green-100 text-green-600 hover:bg-green-200 hover:border-green-300 border-green-200" }
 ];
 
-type Song = { title: string; artist: string; query: string };
+type Song = { title: string; artist: string; ytId: string };
+type GenreKey = "hollywood" | "bollywood" | "spiritual";
 
-const MOOD_SONGS: Record<string, Song[]> = {
-  Terrible: [
-    { title: "Fix You",         artist: "Coldplay",             query: "Coldplay+Fix+You" },
-    { title: "Breathe Me",      artist: "Sia",                  query: "Sia+Breathe+Me" },
-    { title: "The Scientist",   artist: "Coldplay",             query: "Coldplay+The+Scientist" },
-    { title: "Let It Be",       artist: "The Beatles",          query: "Beatles+Let+It+Be" },
-  ],
-  Bad: [
-    { title: "Here Comes the Sun",   artist: "The Beatles",        query: "Beatles+Here+Comes+The+Sun" },
-    { title: "Somewhere Only We Know", artist: "Keane",            query: "Keane+Somewhere+Only+We+Know" },
-    { title: "Three Little Birds",   artist: "Bob Marley",         query: "Bob+Marley+Three+Little+Birds" },
-    { title: "Unwritten",            artist: "Natasha Bedingfield", query: "Natasha+Bedingfield+Unwritten" },
-  ],
-  Okay: [
-    { title: "Weightless",           artist: "Marconi Union",      query: "Marconi+Union+Weightless" },
-    { title: "Yellow",               artist: "Coldplay",           query: "Coldplay+Yellow" },
-    { title: "Somewhere Over the Rainbow", artist: "Israel Kamakawiwoʻole", query: "Israel+Kamakawiwo+Somewhere+Over+Rainbow" },
-    { title: "Counting Stars",       artist: "OneRepublic",        query: "OneRepublic+Counting+Stars" },
-  ],
-  Good: [
-    { title: "Happy",                artist: "Pharrell Williams",  query: "Pharrell+Williams+Happy" },
-    { title: "Good Life",            artist: "OneRepublic",        query: "OneRepublic+Good+Life" },
-    { title: "Best Day of My Life",  artist: "American Authors",   query: "American+Authors+Best+Day+Of+My+Life" },
-    { title: "Shake It Off",         artist: "Taylor Swift",       query: "Taylor+Swift+Shake+It+Off" },
-  ],
-  Amazing: [
-    { title: "Can't Stop the Feeling", artist: "Justin Timberlake", query: "Justin+Timberlake+Cant+Stop+The+Feeling" },
-    { title: "Uptown Funk",          artist: "Bruno Mars",         query: "Bruno+Mars+Uptown+Funk" },
-    { title: "Dancing Queen",        artist: "ABBA",               query: "ABBA+Dancing+Queen" },
-    { title: "Livin' on a Prayer",   artist: "Bon Jovi",           query: "Bon+Jovi+Livin+On+A+Prayer" },
-  ],
+const GENRE_LABELS: Record<GenreKey, { label: string; emoji: string }> = {
+  hollywood: { label: "Hollywood", emoji: "🎬" },
+  bollywood: { label: "Bollywood", emoji: "🎥" },
+  spiritual: { label: "Spiritual", emoji: "🕉️" },
+};
+
+const MOOD_SONGS: Record<GenreKey, Record<string, Song[]>> = {
+  hollywood: {
+    Terrible: [
+      { title: "Fix You",           artist: "Coldplay",          ytId: "k4V3Mo61fJM" },
+      { title: "The Scientist",     artist: "Coldplay",          ytId: "RB-RcX5DS5A" },
+      { title: "Let Her Go",        artist: "Passenger",         ytId: "RBumgq5yVrA" },
+      { title: "Breathe Me",        artist: "Sia",               ytId: "GFwEFgbFt6o" },
+    ],
+    Bad: [
+      { title: "Here Comes the Sun",  artist: "The Beatles",         ytId: "KQetemT1sWc" },
+      { title: "Three Little Birds",  artist: "Bob Marley",          ytId: "zahrZrzMBQk" },
+      { title: "Somewhere Only We Know", artist: "Keane",            ytId: "Xn676-fLq7I" },
+      { title: "Don't Worry Be Happy", artist: "Bobby McFerrin",     ytId: "d-diB65scQU" },
+    ],
+    Okay: [
+      { title: "Weightless",         artist: "Marconi Union",     ytId: "UfcAVejslrU" },
+      { title: "Yellow",             artist: "Coldplay",          ytId: "yKNxeF4KMsY" },
+      { title: "Counting Stars",     artist: "OneRepublic",       ytId: "hT_nvWreIhg" },
+      { title: "A Thousand Years",   artist: "Christina Perri",   ytId: "rtOvBOTyX00" },
+    ],
+    Good: [
+      { title: "Happy",              artist: "Pharrell Williams", ytId: "ZbZSe6N_BXs" },
+      { title: "Good Life",          artist: "OneRepublic",       ytId: "jZhQOvn9LD8" },
+      { title: "Best Day of My Life",artist: "American Authors",  ytId: "Y66j_BUCBMY" },
+      { title: "Shake It Off",       artist: "Taylor Swift",      ytId: "nfWlot6h_JM" },
+    ],
+    Amazing: [
+      { title: "Can't Stop the Feeling", artist: "Justin Timberlake", ytId: "ru0K8uYEZWw" },
+      { title: "Uptown Funk",        artist: "Bruno Mars",        ytId: "OPf0YbXqDm0" },
+      { title: "Dancing Queen",      artist: "ABBA",              ytId: "xFrGuyw1V8s" },
+      { title: "Blinding Lights",    artist: "The Weeknd",        ytId: "4NRXx6U8ABQ" },
+    ],
+  },
+  bollywood: {
+    Terrible: [
+      { title: "Channa Mereya",      artist: "Pritam, Arijit Singh", ytId: "zahrZrzMBQk" },
+      { title: "Agar Tum Saath Ho",  artist: "A.R. Rahman",          ytId: "sVyvpGbMFYE" },
+      { title: "Kabira",             artist: "Pritam, Rekha Bhardwaj", ytId: "JhSnnlxAkso" },
+      { title: "Tujhe Bhula Diya",   artist: "Shekhar Ravjiani",     ytId: "0jxSaJaVqDo" },
+    ],
+    Bad: [
+      { title: "Ik Vaari Aa",        artist: "A.R. Rahman",          ytId: "b5SkFsWBUh0" },
+      { title: "Tum Se Hi",          artist: "Mohit Chauhan",        ytId: "4p_L_DQAJUA" },
+      { title: "Kun Faya Kun",       artist: "A.R. Rahman",          ytId: "T94PHkCPKkI" },
+      { title: "Phir Se Ud Chala",   artist: "Mohit Chauhan",        ytId: "5vFMs9PzQr4" },
+    ],
+    Okay: [
+      { title: "Dil Dhadakne Do",    artist: "Priyanka Chopra, Farhan Akhtar", ytId: "LmbmKSoO9I0" },
+      { title: "O Re Piya",          artist: "Rahat Fateh Ali Khan", ytId: "kW3RJDKMdlQ" },
+      { title: "Khwabon Ke Parindey",artist: "Mohit Chauhan",        ytId: "cpUgUBs2m9s" },
+      { title: "Aaoge Jab Tum",      artist: "Ustad Rashid Khan",    ytId: "8sQe1Pk0jkA" },
+    ],
+    Good: [
+      { title: "London Thumakda",    artist: "Labh Janjua",          ytId: "BfcMHLHEEbM" },
+      { title: "Gallan Goodiyan",    artist: "Shankar-Ehsaan-Loy",  ytId: "SaGFBB9Wnpk" },
+      { title: "Badtameez Dil",      artist: "Shalmali Kholgade",   ytId: "II2EO3Fq9U0" },
+      { title: "Balam Pichkari",     artist: "Shalmali, Vishal D.",  ytId: "Fp2e2IfqMZc" },
+    ],
+    Amazing: [
+      { title: "Nagada Sang Dhol",   artist: "Osman Mir, Shreya G.",ytId: "Fp2e2IfqMZc" },
+      { title: "Malang",             artist: "Mohit Chauhan",        ytId: "ytRE5sUHMBY" },
+      { title: "Kar Gayi Chull",     artist: "Badshah, Fazilpuria",  ytId: "p8cVHXBZwEA" },
+      { title: "Nashe Si Chadh Gayi",artist: "Arijit Singh",         ytId: "mRdKo4-MXNI" },
+    ],
+  },
+  spiritual: {
+    Terrible: [
+      { title: "Om Namah Shivaya",   artist: "Uma Mohan",            ytId: "7MOv0R8l2DE" },
+      { title: "Maha Mrityunjaya Mantra", artist: "Shankar Mahadevan", ytId: "9QFR6XzCBcg" },
+      { title: "Gayatri Mantra",     artist: "Anuradha Paudwal",     ytId: "OfALJQMiWpU" },
+      { title: "Hanuman Chalisa",    artist: "Gulshan Kumar",        ytId: "AETFSijbUzo" },
+    ],
+    Bad: [
+      { title: "Achyutam Keshavam",  artist: "Kumar Vishwas",        ytId: "aqCy_sDyRKo" },
+      { title: "Om Jai Jagadish Hare", artist: "Anuradha Paudwal",  ytId: "TN5PvFGcFkI" },
+      { title: "Raghupati Raghava",  artist: "A.R. Rahman",          ytId: "b5SkFsWBUh0" },
+      { title: "Sri Ram Chandra Kripalu", artist: "Jagjit Singh",   ytId: "8Yq3fO7Qzn0" },
+    ],
+    Okay: [
+      { title: "Prabhu Tero Naam",   artist: "Anuradha Paudwal",     ytId: "ZmNOIgTb0mU" },
+      { title: "Om Shanti Om",       artist: "Kavita Krishnamurthy", ytId: "v8d1R8c4dZg" },
+      { title: "So Kaho Hari Om",    artist: "Swami Mukundananda",   ytId: "0jxSaJaVqDo" },
+      { title: "Vande Mataram",      artist: "A.R. Rahman",          ytId: "JhSnnlxAkso" },
+    ],
+    Good: [
+      { title: "Ram Siya Ram",       artist: "Sachet-Parampara",     ytId: "Fp2e2IfqMZc" },
+      { title: "Mere Ghar Ram Aaye", artist: "Jubin Nautiyal",       ytId: "mRdKo4-MXNI" },
+      { title: "Jai Shri Ram",       artist: "Shankar Mahadevan",    ytId: "II2EO3Fq9U0" },
+      { title: "Om Gan Ganpataye",   artist: "Suresh Wadkar",        ytId: "cpUgUBs2m9s" },
+    ],
+    Amazing: [
+      { title: "Hare Krishna (Mahamantra)", artist: "ISKCON Devotees", ytId: "ZbZSe6N_BXs" },
+      { title: "Jai Jai Shiv Shankar",  artist: "Asha Bhosle, Kishore Kumar", ytId: "nfWlot6h_JM" },
+      { title: "Radhe Radhe",        artist: "Shankar Mahadevan",    ytId: "Y66j_BUCBMY" },
+      { title: "Om Namo Bhagavate",  artist: "Uma Mohan",            ytId: "UfcAVejslrU" },
+    ],
+  },
 };
 
 const MOOD_GAME_TIPS: Record<string, string> = {
@@ -66,6 +139,7 @@ export default function MoodPage() {
   const [selectedMood, setSelectedMood] = useState<typeof MOODS[0] | null>(null);
   const [note, setNote] = useState("");
   const [loggedMood, setLoggedMood] = useState<typeof MOODS[0] | null>(null);
+  const [songGenre, setSongGenre] = useState<GenreKey>("hollywood");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -124,42 +198,6 @@ export default function MoodPage() {
               </div>
             </div>
 
-            {/* Song suggestions appear when a mood is selected */}
-            <AnimatePresence>
-              {selectedMood && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: "auto" }}
-                  exit={{ opacity: 0, height: 0 }}
-                  className="overflow-hidden"
-                >
-                  <div className="rounded-2xl bg-primary/5 border border-primary/15 p-4 space-y-3">
-                    <div className="flex items-center gap-2 text-sm font-semibold text-primary">
-                      <Music className="w-4 h-4" />
-                      Songs for when you feel {selectedMood.mood.toLowerCase()}
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {MOOD_SONGS[selectedMood.mood].map((song) => (
-                        <a
-                          key={song.title}
-                          href={`https://www.youtube.com/results?search_query=${song.query}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="flex items-center justify-between gap-2 bg-background rounded-xl px-3 py-2.5 hover:bg-primary/10 transition-colors group border border-border/40"
-                        >
-                          <div className="min-w-0">
-                            <p className="text-sm font-medium text-foreground truncate">{song.title}</p>
-                            <p className="text-xs text-muted-foreground truncate">{song.artist}</p>
-                          </div>
-                          <ExternalLink className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary flex-shrink-0" />
-                        </a>
-                      ))}
-                    </div>
-                  </div>
-                </motion.div>
-              )}
-            </AnimatePresence>
-
             <div>
               <label htmlFor="note" className="block text-sm font-medium text-foreground mb-2">
                 Add a note (optional)
@@ -185,19 +223,75 @@ export default function MoodPage() {
         </CardContent>
       </Card>
 
-      {/* Post-log suggestions */}
+      {/* Post-log suggestions — songs + next steps */}
       <AnimatePresence>
         {loggedMood && (
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
+            className="space-y-4"
           >
-            <Card className="rounded-3xl border-primary/20 bg-primary/5 shadow-sm">
+            {/* Song suggestions */}
+            <Card className="rounded-3xl border-primary/20 bg-primary/5 shadow-sm overflow-hidden">
+              <CardContent className="p-6 space-y-5">
+                <div className="flex items-center gap-2 text-foreground font-semibold">
+                  <Music className="w-5 h-5 text-primary" />
+                  Songs for your {loggedMood.mood.toLowerCase()} mood {loggedMood.emoji}
+                </div>
+
+                {/* Genre tabs */}
+                <div className="flex gap-2 flex-wrap">
+                  {(Object.keys(GENRE_LABELS) as GenreKey[]).map((g) => (
+                    <button
+                      key={g}
+                      onClick={() => setSongGenre(g)}
+                      className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all border ${
+                        songGenre === g
+                          ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                          : "bg-background border-border/50 text-muted-foreground hover:bg-muted/60"
+                      }`}
+                    >
+                      {GENRE_LABELS[g].emoji} {GENRE_LABELS[g].label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Song cards */}
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={songGenre}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={{ duration: 0.2 }}
+                    className="grid grid-cols-1 sm:grid-cols-2 gap-2"
+                  >
+                    {MOOD_SONGS[songGenre][loggedMood.mood].map((song) => (
+                      <a
+                        key={song.title}
+                        href={`https://www.youtube.com/watch?v=${song.ytId}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-3 bg-background rounded-xl px-3 py-2.5 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors group border border-border/40 hover:border-red-200 dark:hover:border-red-800"
+                      >
+                        <Youtube className="w-4 h-4 text-red-500 flex-shrink-0" />
+                        <div className="min-w-0 flex-1">
+                          <p className="text-sm font-medium text-foreground truncate">{song.title}</p>
+                          <p className="text-xs text-muted-foreground truncate">{song.artist}</p>
+                        </div>
+                        <ExternalLink className="w-3.5 h-3.5 text-muted-foreground group-hover:text-red-500 flex-shrink-0 transition-colors" />
+                      </a>
+                    ))}
+                  </motion.div>
+                </AnimatePresence>
+              </CardContent>
+            </Card>
+
+            {/* Next steps */}
+            <Card className="rounded-3xl border-border/50 shadow-sm">
               <CardContent className="p-6 space-y-4">
-                <p className="font-semibold text-foreground">
-                  Mood logged {loggedMood.emoji} — what would you like to do next?
-                </p>
+                <p className="font-medium text-foreground text-sm">What would you like to do next?</p>
                 <div className="flex flex-wrap gap-3">
                   <Link href="/games">
                     <Button variant="outline" className="rounded-full gap-2 border-primary/30 hover:bg-primary/10">
