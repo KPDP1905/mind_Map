@@ -1,4 +1,4 @@
-# Calmora
+# Mind Mitra
 
 A full-stack mental wellness web app for students and young adults — mood tracking, AI psychology chat, journaling, and daily wellness tools in one calm, therapeutic space.
 

@@ -19,10 +19,10 @@ export default function LandingPage() {
       {/* Nav */}
       <header className="absolute top-0 left-0 right-0 p-6 flex items-center justify-between z-20">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center">
-            <Brain className="w-4 h-4 text-white" />
+          <div className="w-9 h-9 rounded-lg overflow-hidden bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center">
+            <img src="/logo.png" alt="Mind Mitra" className="w-7 h-7 object-contain" />
           </div>
-          <span className="text-xl font-bold text-white tracking-tight">Calmora</span>
+          <span className="text-xl font-bold text-white tracking-tight">Mind Mitra</span>
         </div>
         <div className="flex items-center gap-3">
           <Link href="/sign-in">

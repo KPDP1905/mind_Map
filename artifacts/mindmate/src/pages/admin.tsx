@@ -123,7 +123,7 @@ export default function AdminPage() {
           <Shield className="w-7 h-7 text-primary" />
           Admin Panel
         </h1>
-        <p className="text-muted-foreground mt-1">Manage your Calmora users and platform stats.</p>
+        <p className="text-muted-foreground mt-1">Manage your Mind Mitra users and platform stats.</p>
       </div>
 
       {stats && (

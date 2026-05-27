@@ -36,7 +36,7 @@ export class ErrorBoundary extends Component<Props, State> {
           <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[hsl(240,30%,97%)] px-4 text-center">
             <div className="text-5xl">🧠</div>
             <h1 className="text-2xl font-bold text-[hsl(230,25%,18%)]">
-              Calmora
+              Mind Mitra
             </h1>
             <p className="max-w-sm text-[hsl(230,15%,45%)]">
               Having trouble connecting to the auth service. Please{" "}

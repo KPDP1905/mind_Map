@@ -17,6 +17,7 @@ import JournalPage from "./pages/journal";
 import WellnessPage from "./pages/wellness";
 import ProfilePage from "./pages/profile";
 import AdminPage from "./pages/admin";
+import GamesPage from "./pages/games";
 
 const queryClient = new QueryClient();
 
@@ -181,6 +182,7 @@ function Router() {
             <Route path="/journal"><AuthenticatedRoute component={JournalPage} /></Route>
             <Route path="/wellness"><AuthenticatedRoute component={WellnessPage} /></Route>
             <Route path="/profile"><AuthenticatedRoute component={ProfilePage} /></Route>
+            <Route path="/games"><AuthenticatedRoute component={GamesPage} /></Route>
             <Route path="/admin"><AuthenticatedRoute component={AdminPage} /></Route>
 
             <Route>

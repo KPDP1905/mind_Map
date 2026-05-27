@@ -10,7 +10,8 @@ import {
   User, 
   LogOut,
   Menu,
-  Shield
+  Shield,
+  Gamepad2
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -29,12 +30,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   }, []);
 
   const navItems = [
-    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/mood", label: "Mood Tracker", icon: Smile },
-    { href: "/chat", label: "Your Mind's Doctor", icon: MessageCircle },
-    { href: "/journal", label: "Journal", icon: BookOpen },
-    { href: "/wellness", label: "Wellness Tools", icon: Sparkles },
-    { href: "/profile", label: "Profile", icon: User },
+    { href: "/dashboard", label: "Dashboard",          icon: LayoutDashboard },
+    { href: "/mood",      label: "Mood Tracker",       icon: Smile },
+    { href: "/chat",      label: "Your Mind's Doctor", icon: MessageCircle },
+    { href: "/journal",   label: "Journal",            icon: BookOpen },
+    { href: "/wellness",  label: "Wellness Tools",     icon: Sparkles },
+    { href: "/games",     label: "Mind Games",         icon: Gamepad2 },
+    { href: "/profile",   label: "Profile",            icon: User },
     ...(isAdmin ? [{ href: "/admin", label: "Admin", icon: Shield }] : []),
   ];
 
@@ -44,11 +46,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   const SidebarContent = () => (
     <div className="flex flex-col h-full bg-sidebar border-r border-sidebar-border text-sidebar-foreground">
-      <div className="p-6 flex items-center gap-2">
-        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary">
-          <Sparkles className="w-5 h-5" />
-        </div>
-        <span className="text-xl font-bold tracking-tight">Calmora</span>
+      <div className="p-6 flex items-center gap-2.5">
+        <img src="/logo.png" alt="Mind Mitra" className="w-9 h-9 object-contain rounded-lg" />
+        <span className="text-xl font-bold tracking-tight">Mind Mitra</span>
       </div>
       <nav className="flex-1 px-4 space-y-1">
         {navItems.map((item) => {
@@ -57,15 +57,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             <Link key={item.href} href={item.href}>
               <div className={`flex items-center gap-3 px-4 py-3 rounded-xl transition-colors cursor-pointer ${
                 item.href === "/admin"
-                  ? isActive
-                    ? "bg-amber-100 text-amber-800 font-medium"
-                    : "hover:bg-amber-50 text-amber-700"
-                  : isActive
-                    ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium"
-                    : "hover:bg-sidebar-accent/50 text-muted-foreground"
+                  ? isActive ? "bg-amber-100 text-amber-800 font-medium" : "hover:bg-amber-50 text-amber-700"
+                  : isActive ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : "hover:bg-sidebar-accent/50 text-muted-foreground"
               }`}>
                 <item.icon className="w-5 h-5 flex-shrink-0" />
-                <span className="truncate">{item.label}</span>
+                <span className="truncate text-sm">{item.label}</span>
               </div>
             </Link>
           );
@@ -95,19 +91,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen app-bg text-foreground">
-      {/* Desktop Sidebar */}
       <aside className="hidden md:flex w-64 flex-col fixed inset-y-0">
         <SidebarContent />
       </aside>
 
-      {/* Mobile Header & Main Content */}
       <div className="flex-1 flex flex-col md:ml-64 min-w-0">
         <header className="md:hidden flex items-center justify-between p-4 border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-10">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-primary">
-              <Sparkles className="w-3 h-3" />
-            </div>
-            <span className="text-lg font-bold tracking-tight">Calmora</span>
+            <img src="/logo.png" alt="Mind Mitra" className="w-7 h-7 object-contain rounded-md" />
+            <span className="text-lg font-bold tracking-tight">Mind Mitra</span>
           </div>
           <Sheet>
             <SheetTrigger asChild>
