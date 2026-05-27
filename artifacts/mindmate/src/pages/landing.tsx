@@ -6,12 +6,33 @@ import { Heart, Brain, Sparkles, MessageCircle, ArrowRight } from "lucide-react"
 export default function LandingPage() {
   return (
     <div className="min-h-screen relative overflow-hidden bg-[#06001a] selection:bg-white/20 selection:text-white">
-      {/* Aurora blobs */}
-      <div className="aurora-blob" style={{ width: 700, height: 700, background: "radial-gradient(circle, rgba(56,189,248,0.28) 0%, transparent 70%)", top: -200, left: -200 }} />
-      <div className="aurora-blob aurora-2" style={{ width: 600, height: 600, background: "radial-gradient(circle, rgba(139,92,246,0.32) 0%, transparent 70%)", top: -100, right: -150 }} />
-      <div className="aurora-blob aurora-3" style={{ width: 500, height: 500, background: "radial-gradient(circle, rgba(20,184,166,0.22) 0%, transparent 70%)", bottom: 100, left: 50 }} />
-      <div className="aurora-blob aurora-4" style={{ width: 550, height: 550, background: "radial-gradient(circle, rgba(168,85,247,0.2) 0%, transparent 70%)", bottom: -100, right: -80 }} />
-      <div className="aurora-blob aurora-5" style={{ width: 300, height: 300, background: "radial-gradient(circle, rgba(99,179,237,0.25) 0%, transparent 70%)", top: "40%", left: "45%" }} />
+      {/* Logo-colored aurora glows — teal & purple to match the brand */}
+      <div className="aurora-blob" style={{ width: 650, height: 650, background: "radial-gradient(circle, rgba(78,191,191,0.22) 0%, transparent 70%)", top: -180, left: -180 }} />
+      <div className="aurora-blob aurora-2" style={{ width: 580, height: 580, background: "radial-gradient(circle, rgba(123,104,200,0.28) 0%, transparent 70%)", top: -80, right: -140 }} />
+      <div className="aurora-blob aurora-3" style={{ width: 480, height: 480, background: "radial-gradient(circle, rgba(78,191,191,0.18) 0%, transparent 70%)", bottom: 80, left: 60 }} />
+      <div className="aurora-blob aurora-4" style={{ width: 520, height: 520, background: "radial-gradient(circle, rgba(123,104,200,0.18) 0%, transparent 70%)", bottom: -100, right: -80 }} />
+
+      {/* Large logo watermark — the hero backdrop */}
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+        {/* Glow ring behind the logo */}
+        <div style={{
+          width: 560, height: 560,
+          background: "radial-gradient(circle, rgba(123,104,200,0.18) 0%, rgba(78,191,191,0.10) 40%, transparent 70%)",
+          borderRadius: "50%",
+          position: "absolute",
+          filter: "blur(30px)",
+        }} />
+        <img
+          src="/logo-transparent.png"
+          alt=""
+          aria-hidden="true"
+          style={{
+            width: 520, height: 520, objectFit: "contain",
+            opacity: 0.22,
+            filter: "brightness(1.4) saturate(1.3)",
+          }}
+        />
+      </div>
 
       {/* Noise overlay */}
       <div className="absolute inset-0 opacity-[0.03]" style={{ backgroundImage: "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='1'/%3E%3C/svg%3E\")" }} />
@@ -20,7 +41,7 @@ export default function LandingPage() {
       <header className="absolute top-0 left-0 right-0 p-6 flex items-center justify-between z-20">
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 rounded-lg overflow-hidden bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center">
-            <img src="/logo.png" alt="Mind Mitra" className="w-7 h-7 object-contain" />
+            <img src="/logo-transparent.png" alt="Mind Mitra" className="w-7 h-7 object-contain" />
           </div>
           <span className="text-xl font-bold text-white tracking-tight">Mind Mitra</span>
         </div>

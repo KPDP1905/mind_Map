@@ -47,7 +47,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const SidebarContent = () => (
     <div className="flex flex-col h-full bg-sidebar border-r border-sidebar-border text-sidebar-foreground">
       <div className="p-6 flex items-center gap-2.5">
-        <img src="/logo.png" alt="Mind Mitra" className="w-9 h-9 object-contain rounded-lg" />
+        <img src="/logo-transparent.png" alt="Mind Mitra" className="w-9 h-9 object-contain" />
         <span className="text-xl font-bold tracking-tight">Mind Mitra</span>
       </div>
       <nav className="flex-1 px-4 space-y-1">
@@ -98,7 +98,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <div className="flex-1 flex flex-col md:ml-64 min-w-0">
         <header className="md:hidden flex items-center justify-between p-4 border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-10">
           <div className="flex items-center gap-2">
-            <img src="/logo.png" alt="Mind Mitra" className="w-7 h-7 object-contain rounded-md" />
+            <img src="/logo-transparent.png" alt="Mind Mitra" className="w-7 h-7 object-contain" />
             <span className="text-lg font-bold tracking-tight">Mind Mitra</span>
           </div>
           <Sheet>
