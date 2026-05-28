@@ -33,8 +33,8 @@ outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "PORT=20014 BASE_PATH=/ pnpm --filter @workspace/mindmate run dev"
-waitForPort = 20014
+args = "PORT=5000 BASE_PATH=/ pnpm --filter @workspace/mindmate run dev"
+waitForPort = 5000
 
 [[workflows.workflow]]
 name = "API Server"
@@ -68,6 +68,10 @@ externalPort = 80
 [[ports]]
 localPort = 20014
 externalPort = 3000
+
+[[ports]]
+localPort = 5000
+externalPort = 80
 
 [nix]
 channel = "stable-25_05"
