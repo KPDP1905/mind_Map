@@ -1,0 +1,289 @@
+# Wellness App UI/UX + Functional Fixes Prompt
+
+You are a senior full-stack developer and UI/UX engineer.
+
+Analyze my existing wellness application and implement the following fixes and improvements carefully without breaking existing functionality.
+
+---
+
+# PRIORITY FIXES
+
+## 1. Language & Theme Switching Not Working
+
+### Fix Requirements
+
+* Fix multilingual switching completely.
+* Ensure selected language persists after refresh using localStorage or database.
+* Ensure all pages/components update instantly when language changes.
+* Fix dark/light theme switching.
+* Save theme preference permanently.
+* Prevent UI flickering during theme change.
+* Apply theme consistently across:
+
+  * Dashboard
+  * Journal
+  * Meditation
+  * Period Tracker
+  * Wellness Checklist
+  * Mood Graphs
+  * Charts
+  * Settings
+  * Mobile responsive views
+
+### Technical Notes
+
+* Use centralized Theme Context / Provider.
+* Use centralized i18n translation system.
+* Remove duplicated theme logic.
+* Ensure charts and graphs also adapt to dark mode properly.
+
+---
+
+# 2. Period Tracker Module Improvements
+
+### Fixes
+
+* Fix inaccurate cycle calculations.
+* Improve prediction logic for:
+
+  * Next period
+  * Ovulation
+  * Fertility window
+* Add editable cycle history.
+* Add symptom tracking:
+
+  * Cramps
+  * Mood
+  * Headache
+  * Energy
+  * Sleep
+* Add calendar-based UI.
+* Improve mobile responsiveness.
+
+### UI Improvements
+
+* Use soft feminine wellness-style UI.
+* Add color indicators for:
+
+  * Current cycle
+  * Ovulation
+  * Predicted period days
+
+---
+
+# 3. Meditation Module Should Be Separate
+
+### Current Issue
+
+Meditation functionality is mixed with other wellness modules.
+
+### Required Changes
+
+Create a dedicated Meditation section/page with its own navigation.
+
+### Features
+
+* Meditation home page
+* Categories:
+
+  * Sleep
+  * Stress Relief
+  * Anxiety
+  * Focus
+  * Breathing
+* Audio player
+* Session timer
+* Progress tracking
+* Streak counter
+* Calm minimalist design
+
+### UI
+
+* Add relaxing animations.
+* Use smooth transitions.
+* Add breathing animation component.
+
+---
+
+# 4. Journal Chatting Not Working
+
+### Fix Issues
+
+* Journal AI chat is broken/not responding properly.
+* Messages are not saving/loading correctly.
+* Real-time chat updates failing.
+
+### Required Features
+
+* Fully working chat interface
+* Save conversations correctly
+* Typing indicator
+* Smooth scrolling
+* Chat history
+* AI emotional response support
+* Timestamp display
+* Retry failed messages
+
+### UI Improvements
+
+* Modern chat bubble UI
+* Better spacing
+* Mobile optimized
+* Auto-scroll to latest message
+
+### Backend Improvements
+
+* Fix API handling
+* Improve state management
+* Add loading/error handling
+* Prevent duplicate messages
+
+---
+
+# 5. Mental Energy Module Percentage Display Broken
+
+### Current Problem
+
+Energy percentage display looks incorrect and visually broken.
+
+### Required Fixes
+
+* Fix percentage calculations.
+* Ensure percentages never overflow UI.
+* Improve circular progress visualization.
+* Add smooth animated progress bars.
+* Display:
+
+  * Daily energy
+  * Weekly average
+  * Burnout warning
+  * Recovery recommendations
+
+### Design
+
+* Use modern wellness-style cards.
+* Add color logic:
+
+  * Green = healthy
+  * Yellow = moderate
+  * Red = low energy
+
+---
+
+# 6. Daily Wellness Checklist in Main Dashboard
+
+### Add New Dashboard Section
+
+Create a Daily Wellness Checklist widget directly on the main dashboard.
+
+### Checklist Items
+
+* Drink water
+* Meditation
+* Exercise
+* Sleep tracking
+* Journal entry
+* Mood check
+* Stretching
+* Medication reminder
+
+### Features
+
+* Interactive checkboxes
+* Progress percentage
+* Daily completion streak
+* Auto reset every new day
+* Save progress to database/local storage
+
+### UI
+
+* Compact dashboard widget
+* Beautiful card design
+* Animated completion effects
+
+---
+
+# 7. Mood Trend Graph / Map Looks Bad
+
+### Current Issue
+
+Mood visualization is unattractive and difficult to understand.
+
+### Redesign Requirements
+
+Completely redesign the mood analytics section.
+
+### Add
+
+* Beautiful line chart
+* Weekly mood graph
+* Monthly trend graph
+* Mood heatmap/calendar
+* Emotion distribution chart
+* Interactive hover tooltips
+
+### Visual Improvements
+
+* Smooth gradients
+* Responsive charts
+* Better spacing and typography
+* Dark mode compatibility
+* Modern analytics dashboard style
+
+### Suggested Libraries
+
+Use modern chart libraries like:
+
+* Recharts
+* Chart.js
+* ApexCharts
+* ECharts
+
+---
+
+# GLOBAL UI/UX IMPROVEMENTS
+
+Apply these globally:
+
+* Improve spacing consistency
+* Better typography hierarchy
+* Smooth animations
+* Modern wellness aesthetic
+* Improve mobile responsiveness
+* Add skeleton loaders
+* Better empty states
+* Better loading states
+* Improve accessibility
+* Fix overflow issues
+* Optimize performance
+
+---
+
+# PERFORMANCE & CODE QUALITY
+
+Refactor code where necessary:
+
+* Remove duplicated logic
+* Improve component structure
+* Add reusable UI components
+* Optimize rendering
+* Improve state management
+* Add proper error boundaries
+* Improve API handling
+* Fix console errors/warnings
+
+---
+
+# FINAL REQUIREMENTS
+
+Before finishing:
+
+1. Test all modules fully.
+2. Ensure mobile responsiveness.
+3. Ensure dark/light themes work everywhere.
+4. Ensure charts render properly.
+5. Ensure no broken routes/components.
+6. Ensure all data persists correctly.
+7. Improve overall polish and user experience.
+
+Deliver production-quality implementation with clean architecture and polished UI.
