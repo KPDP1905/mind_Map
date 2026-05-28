@@ -20,6 +20,7 @@ import AdminPage from "./pages/admin";
 import GamesPage from "./pages/games";
 import MeditationPage from "./pages/meditation";
 import PeriodTrackerPage from "./pages/period-tracker";
+import AutoLoginPage from "./pages/auto-login";
 
 const queryClient = new QueryClient();
 
@@ -189,6 +190,7 @@ function Router() {
             <Route path="/" component={HomeRedirect} />
             <Route path="/sign-in/*?" component={SignInPage} />
             <Route path="/sign-up/*?" component={SignUpPage} />
+            <Route path="/auto-login" component={AutoLoginPage} />
             
             <Route path="/dashboard"><AuthenticatedRoute component={DashboardPage} /></Route>
             <Route path="/mood"><AuthenticatedRoute component={MoodPage} /></Route>

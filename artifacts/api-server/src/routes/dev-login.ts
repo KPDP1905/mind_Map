@@ -35,7 +35,7 @@ router.get("/dev/quick-login", async (req: any, res): Promise<void> => {
 
     const ticket = data.token;
     const origin = req.headers.origin || `https://${req.headers.host}`;
-    const redirectUrl = `${origin}/sign-in?__clerk_ticket=${ticket}`;
+    const redirectUrl = `${origin}/auto-login?__clerk_ticket=${ticket}`;
 
     res.redirect(302, redirectUrl);
   } catch (err: any) {
