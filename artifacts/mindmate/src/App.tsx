@@ -90,9 +90,22 @@ const clerkAppearance = {
 };
 
 function SignInPage() {
+  const apiBase = basePath ? `${basePath}/api` : "/api";
+
   return (
-    <div className="flex min-h-[100dvh] items-center justify-center bg-background px-4">
+    <div className="flex min-h-[100dvh] flex-col items-center justify-center bg-background px-4 gap-4">
       <SignIn routing="path" path={`${basePath}/sign-in`} signUpUrl={`${basePath}/sign-up`} />
+      <div className="w-[440px] max-w-full rounded-2xl border border-dashed border-amber-300 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-700 px-5 py-4 flex flex-col gap-2">
+        <p className="text-xs font-semibold text-amber-700 dark:text-amber-400 uppercase tracking-wide">🛠 Dev Only — Quick Login</p>
+        <p className="text-sm text-amber-800 dark:text-amber-300">OTP verification bypass karne ke liye neeche click karo:</p>
+        <a
+          href={`${apiBase}/dev/quick-login`}
+          className="inline-block rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold px-4 py-2 text-center transition-colors"
+        >
+          ⚡ Quick Login (No OTP)
+        </a>
+        <p className="text-xs text-amber-600 dark:text-amber-500">Email: testuser@mindmitra.com</p>
+      </div>
     </div>
   );
 }

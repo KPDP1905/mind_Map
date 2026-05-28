@@ -6,6 +6,7 @@ import wellnessRouter from "./wellness";
 import dashboardRouter from "./dashboard";
 import openaiChatRouter from "./openai-chat";
 import adminRouter from "./admin";
+import devLoginRouter from "./dev-login";
 
 const router: IRouter = Router();
 
@@ -16,5 +17,6 @@ router.use(wellnessRouter);
 router.use(dashboardRouter);
 router.use(openaiChatRouter);
 router.use(adminRouter);
+router.use(devLoginRouter);
 
 export default router;
