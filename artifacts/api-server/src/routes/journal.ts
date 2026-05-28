@@ -1,17 +1,10 @@
 import { Router, type IRouter } from "express";
 import { eq, and, desc } from "drizzle-orm";
-import { getAuth } from "@clerk/express";
 import { db, journalTable } from "@workspace/db";
+import { requireAuth } from "../middlewares/requireAuth";
 import { CreateJournalEntryBody, UpdateJournalEntryBody, UpdateJournalEntryParams, GetJournalEntryParams } from "@workspace/api-zod";
 
 const router: IRouter = Router();
-
-const requireAuth = (req: any, res: any, next: any) => {
-  const auth = getAuth(req);
-  if (!auth?.userId) { res.status(401).json({ error: "Unauthorized" }); return; }
-  req.userId = auth.userId;
-  next();
-};
 
 router.get("/journal", requireAuth, async (req: any, res): Promise<void> => {
   const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 50;

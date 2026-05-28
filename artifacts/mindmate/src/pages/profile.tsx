@@ -1,12 +1,12 @@
 import { useState } from "react";
-import { useUser, useClerk } from "@clerk/react";
+import { useAuth } from "@/contexts/auth-context";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { User, LogOut, Settings, Bell, Shield, ChevronDown, ChevronUp, Download, ExternalLink, Moon, Sun } from "lucide-react";
+import { User, LogOut, Settings, Bell, Shield, ChevronDown, ChevronUp, Download } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 
@@ -29,16 +29,13 @@ function useLocalStorage<T>(key: string, defaultValue: T) {
 }
 
 export default function ProfilePage() {
-  const { user, isLoaded } = useUser();
-  const { signOut, openUserProfile } = useClerk();
+  const { user, isLoaded, logout } = useAuth();
   const { toast } = useToast();
+  const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
   const [openSection, setOpenSection] = useState<Section>(null);
-
-  const [theme, setTheme] = useLocalStorage("mm_theme", "system");
   const [language, setLanguage] = useLocalStorage("mm_language", "en");
-  const [timezone, setTimezone] = useLocalStorage("mm_timezone", Intl.DateTimeFormat().resolvedOptions().timeZone);
-
+  const [timezone] = useLocalStorage("mm_timezone", Intl.DateTimeFormat().resolvedOptions().timeZone);
   const [notifDailyReminder, setNotifDailyReminder] = useLocalStorage("mm_notif_daily", true);
   const [notifWeeklyReport, setNotifWeeklyReport] = useLocalStorage("mm_notif_weekly", true);
   const [notifAffirmations, setNotifAffirmations] = useLocalStorage("mm_notif_affirmations", true);
@@ -46,11 +43,16 @@ export default function ProfilePage() {
 
   const toggle = (section: Section) => setOpenSection(prev => prev === section ? null : section);
 
+  const handleSignOut = async () => {
+    await logout();
+    window.location.href = BASE || "/";
+  };
+
   const handleExportData = () => {
     const data = {
       exportedAt: new Date().toISOString(),
-      user: { name: `${user?.firstName} ${user?.lastName}`, email: user?.primaryEmailAddress?.emailAddress },
-      note: "Mood, journal, and wellness data can be exported from your account settings.",
+      user: { username: user?.username, displayName: user?.displayName },
+      note: "Mood, journal, and wellness data can be exported from the API.",
     };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
@@ -77,22 +79,22 @@ export default function ProfilePage() {
       <Card className="rounded-3xl border-border/50 shadow-sm overflow-hidden">
         <CardContent className="p-8 flex flex-col md:flex-row items-center gap-8">
           <Avatar className="w-24 h-24 border-4 border-background shadow-md">
-            <AvatarImage src={user.imageUrl} />
             <AvatarFallback className="bg-primary/10 text-primary text-2xl">
-              {user.firstName?.charAt(0) || "U"}
+              {user.displayName?.charAt(0) || user.username?.charAt(0) || "U"}
             </AvatarFallback>
           </Avatar>
           
           <div className="text-center md:text-left flex-1">
-            <h2 className="text-2xl font-bold text-foreground">
-              {user.firstName} {user.lastName}
-            </h2>
-            <p className="text-muted-foreground mt-1">
-              {user.primaryEmailAddress?.emailAddress}
-            </p>
+            <h2 className="text-2xl font-bold text-foreground">{user.displayName}</h2>
+            <p className="text-muted-foreground mt-1">@{user.username}</p>
+            {user.role === "admin" && (
+              <span className="inline-flex items-center gap-1 mt-2 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 px-3 py-0.5 text-xs font-semibold">
+                <Shield className="w-3 h-3" /> Admin
+              </span>
+            )}
           </div>
 
-          <Button variant="outline" className="rounded-full px-6" onClick={() => signOut({ redirectUrl: "/" })}>
+          <Button variant="outline" className="rounded-full px-6" onClick={handleSignOut}>
             <LogOut className="w-4 h-4 mr-2" />
             Sign out
           </Button>
@@ -120,7 +122,7 @@ export default function ProfilePage() {
                   </div>
                   <div>
                     <h3 className="font-medium text-foreground">General Preferences</h3>
-                    <p className="text-sm text-muted-foreground">Theme, language, and timezone</p>
+                    <p className="text-sm text-muted-foreground">Language and timezone</p>
                   </div>
                 </div>
                 {openSection === "preferences" ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
@@ -138,21 +140,6 @@ export default function ProfilePage() {
                     <div className="px-6 pb-6 space-y-5 bg-muted/10 border-t border-border/30">
                       <div className="pt-5 grid grid-cols-1 sm:grid-cols-2 gap-5">
                         <div className="space-y-2">
-                          <Label className="text-sm font-medium">Theme</Label>
-                          <Select value={theme} onValueChange={(v) => { setTheme(v); toast({ title: "Theme saved", description: `Set to ${v}` }); }}>
-                            <SelectTrigger className="rounded-xl">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="system">System Default</SelectItem>
-                              <SelectItem value="light">☀️ Light</SelectItem>
-                              <SelectItem value="dark">🌙 Dark</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <p className="text-xs text-muted-foreground">App-wide theme will apply on next visit</p>
-                        </div>
-
-                        <div className="space-y-2">
                           <Label className="text-sm font-medium">Language</Label>
                           <Select value={language} onValueChange={(v) => { setLanguage(v); toast({ title: "Language saved" }); }}>
                             <SelectTrigger className="rounded-xl">
@@ -167,7 +154,6 @@ export default function ProfilePage() {
                             </SelectContent>
                           </Select>
                         </div>
-
                         <div className="space-y-2 sm:col-span-2">
                           <Label className="text-sm font-medium">Timezone</Label>
                           <div className="flex items-center gap-2 px-3 py-2 bg-background rounded-xl border border-border/50 text-sm text-foreground">
@@ -229,7 +215,7 @@ export default function ProfilePage() {
                             />
                           </div>
                         ))}
-                        <p className="text-xs text-muted-foreground px-1">Preferences saved to your device. Browser notifications will be available in a future update.</p>
+                        <p className="text-xs text-muted-foreground px-1">Preferences saved to your device.</p>
                       </div>
                     </div>
                   </motion.div>
@@ -249,7 +235,7 @@ export default function ProfilePage() {
                   </div>
                   <div>
                     <h3 className="font-medium text-foreground">Privacy & Security</h3>
-                    <p className="text-sm text-muted-foreground">Data, password, and security</p>
+                    <p className="text-sm text-muted-foreground">Data and security settings</p>
                   </div>
                 </div>
                 {openSection === "privacy" ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
@@ -268,48 +254,17 @@ export default function ProfilePage() {
                       <div className="pt-5 space-y-3">
                         <div className="p-4 bg-background rounded-2xl border border-border/50 space-y-1">
                           <p className="text-sm font-medium text-foreground">🔒 Your data is private</p>
-                          <p className="text-xs text-muted-foreground">All your moods, journals, and chats are stored securely and are only visible to you. We never sell your data.</p>
+                          <p className="text-xs text-muted-foreground">All your moods, journals, and chats are stored securely and are only visible to you.</p>
                         </div>
-
                         <button
                           onClick={handleExportData}
-                          className="w-full flex items-center justify-between gap-3 p-4 bg-background rounded-2xl border border-border/50 hover:bg-muted/30 transition-colors text-left"
+                          className="w-full flex items-center gap-3 p-4 bg-background rounded-2xl border border-border/50 hover:bg-muted/30 transition-colors text-left"
                         >
-                          <div className="flex items-center gap-3">
-                            <Download className="w-4 h-4 text-muted-foreground" />
-                            <div>
-                              <p className="text-sm font-medium text-foreground">Export my data</p>
-                              <p className="text-xs text-muted-foreground">Download a copy of your profile data as JSON</p>
-                            </div>
+                          <Download className="w-4 h-4 text-muted-foreground" />
+                          <div>
+                            <p className="text-sm font-medium text-foreground">Export my data</p>
+                            <p className="text-xs text-muted-foreground">Download a copy of your profile data as JSON</p>
                           </div>
-                        </button>
-
-                        <button
-                          onClick={() => openUserProfile()}
-                          className="w-full flex items-center justify-between gap-3 p-4 bg-background rounded-2xl border border-border/50 hover:bg-muted/30 transition-colors text-left"
-                        >
-                          <div className="flex items-center gap-3">
-                            <Shield className="w-4 h-4 text-muted-foreground" />
-                            <div>
-                              <p className="text-sm font-medium text-foreground">Manage password & security</p>
-                              <p className="text-xs text-muted-foreground">Change password, enable 2FA, manage connected accounts</p>
-                            </div>
-                          </div>
-                          <ExternalLink className="w-4 h-4 text-muted-foreground flex-shrink-0" />
-                        </button>
-
-                        <button
-                          onClick={() => openUserProfile()}
-                          className="w-full flex items-center justify-between gap-3 p-4 bg-background rounded-2xl border border-red-200/50 dark:border-red-900/30 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors text-left"
-                        >
-                          <div className="flex items-center gap-3">
-                            <User className="w-4 h-4 text-red-500" />
-                            <div>
-                              <p className="text-sm font-medium text-red-600 dark:text-red-400">Delete account</p>
-                              <p className="text-xs text-muted-foreground">Permanently delete your account and all data</p>
-                            </div>
-                          </div>
-                          <ExternalLink className="w-4 h-4 text-muted-foreground flex-shrink-0" />
                         </button>
                       </div>
                     </div>

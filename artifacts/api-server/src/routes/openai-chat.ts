@@ -1,8 +1,8 @@
 import { Router, type IRouter } from "express";
 import { eq, and, asc } from "drizzle-orm";
-import { getAuth } from "@clerk/express";
 import { db, conversations, messages } from "@workspace/db";
 import { openai } from "@workspace/integrations-openai-ai-server";
+import { requireAuth } from "../middlewares/requireAuth";
 import {
   CreateOpenaiConversationBody,
   SendOpenaiMessageBody,
@@ -14,12 +14,6 @@ import {
 
 const router: IRouter = Router();
 
-const requireAuth = (req: any, res: any, next: any) => {
-  const auth = getAuth(req);
-  if (!auth?.userId) { res.status(401).json({ error: "Unauthorized" }); return; }
-  req.userId = auth.userId;
-  next();
-};
 
 const SYSTEM_PROMPT = `You are Mind Mitra, a compassionate and empathetic AI psychology support assistant designed for students and young adults. Your role is to:
 - Listen actively and validate feelings without judgment

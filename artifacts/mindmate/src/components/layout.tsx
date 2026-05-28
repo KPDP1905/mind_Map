@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { useUser, useClerk } from "@clerk/react";
+import { useAuth } from "@/contexts/auth-context";
 import { useEffect, useState } from "react";
 import { 
   LayoutDashboard, 
@@ -25,18 +25,19 @@ import { useLang } from "@/contexts/language-context";
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [location] = useLocation();
-  const { user } = useUser();
-  const { signOut } = useClerk();
+  const { user, logout } = useAuth();
   const [isAdmin, setIsAdmin] = useState(false);
   const { theme, toggleTheme } = useTheme();
   const { lang, setLang, t } = useLang();
 
+  const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
+
   useEffect(() => {
-    fetch("/api/admin/me")
+    fetch(`${BASE}/api/admin/me`, { credentials: "include" })
       .then((r) => r.json())
       .then((d) => { if (d.isAdmin) setIsAdmin(true); })
       .catch(() => {});
-  }, []);
+  }, [BASE]);
 
   const navItems = [
     { href: "/dashboard",       label: t("dashboard"),      icon: LayoutDashboard },
@@ -51,8 +52,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     ...(isAdmin ? [{ href: "/admin", label: t("admin"), icon: Shield }] : []),
   ];
 
-  const handleSignOut = () => {
-    signOut({ redirectUrl: import.meta.env.BASE_URL.replace(/\/$/, "") || "/" });
+  const handleSignOut = async () => {
+    await logout();
+    window.location.href = BASE || "/";
   };
 
   const SidebarContent = ({ onNavClick }: { onNavClick?: () => void }) => (
@@ -106,15 +108,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
         <div className="flex items-center gap-3 px-4 py-2">
           <div className="w-8 h-8 rounded-full bg-primary/10 overflow-hidden flex-shrink-0 flex items-center justify-center">
-            {user?.imageUrl ? (
-              <img src={user.imageUrl} alt="Profile" className="w-full h-full object-cover" />
-            ) : (
-              <User className="w-5 h-5 m-auto text-primary" />
-            )}
+            <User className="w-5 h-5 m-auto text-primary" />
           </div>
           <div className="truncate">
-            <p className="text-sm font-medium truncate">{user?.firstName || 'User'}</p>
-            <p className="text-xs text-muted-foreground truncate">{user?.primaryEmailAddress?.emailAddress}</p>
+            <p className="text-sm font-medium truncate">{user?.displayName || user?.username || 'User'}</p>
+            <p className="text-xs text-muted-foreground truncate">@{user?.username}</p>
           </div>
         </div>
         <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-foreground" onClick={handleSignOut}>

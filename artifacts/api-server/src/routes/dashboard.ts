@@ -1,16 +1,9 @@
 import { Router, type IRouter } from "express";
 import { eq, and, gte, desc } from "drizzle-orm";
-import { getAuth } from "@clerk/express";
 import { db, moodsTable, journalTable, gratitudeTable, conversations } from "@workspace/db";
+import { requireAuth } from "../middlewares/requireAuth";
 
 const router: IRouter = Router();
-
-const requireAuth = (req: any, res: any, next: any) => {
-  const auth = getAuth(req);
-  if (!auth?.userId) { res.status(401).json({ error: "Unauthorized" }); return; }
-  req.userId = auth.userId;
-  next();
-};
 
 router.get("/dashboard/summary", requireAuth, async (req: any, res): Promise<void> => {
   const userId: string = req.userId;

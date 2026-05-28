@@ -1,17 +1,10 @@
 import { Router, type IRouter } from "express";
 import { eq, desc } from "drizzle-orm";
-import { getAuth } from "@clerk/express";
 import { db, affirmationsTable, wellnessExercisesTable, gratitudeTable, moodsTable, journalTable } from "@workspace/db";
+import { requireAuth } from "../middlewares/requireAuth";
 import { CreateGratitudeEntryBody } from "@workspace/api-zod";
 
 const router: IRouter = Router();
-
-const requireAuth = (req: any, res: any, next: any) => {
-  const auth = getAuth(req);
-  if (!auth?.userId) { res.status(401).json({ error: "Unauthorized" }); return; }
-  req.userId = auth.userId;
-  next();
-};
 
 router.get("/wellness/affirmations", async (_req, res): Promise<void> => {
   const items = await db.select().from(affirmationsTable).orderBy(affirmationsTable.id);
