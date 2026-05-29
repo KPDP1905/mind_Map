@@ -1,0 +1,2 @@
+- [Calmora branding](calmora-branding.md) — app rebranded from Mind Mitra; logo at public/logo.png; usePageTheme hook drives per-page backgrounds.
+- [Auth setup](auth-setup.md) — custom session auth (bcryptjs); admin/MindMitra@123; DB schema pushed; app_users table seeded.

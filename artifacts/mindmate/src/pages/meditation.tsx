@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { usePageTheme } from "@/hooks/use-page-theme";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -176,6 +177,7 @@ function SessionTimer({ session, onComplete }: { session: { title: string; durat
 }
 
 export default function MeditationPage() {
+  usePageTheme("linear-gradient(135deg, #e8e0f5 0%, #d8d0ee 30%, #e8e4f8 60%, #f0eafa 100%)");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [activeSession, setActiveSession] = useState<number | null>(null);
   const [completedSessions, setCompletedSessions] = useLS<number>("mm_meditation_completed", 0);

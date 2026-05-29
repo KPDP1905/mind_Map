@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { usePageTheme } from "@/hooks/use-page-theme";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -66,6 +67,7 @@ function getDayType(
 }
 
 export default function PeriodTrackerPage() {
+  usePageTheme("linear-gradient(135deg, #fde8f0 0%, #f8d8e8 30%, #fce0ee 65%, #f5e0f5 100%)");
   const [cycles, setCycles] = useLS<CycleEntry[]>("mm_period_cycles", []);
   const [calMonth, setCalMonth] = useState(new Date());
   const [showAdd, setShowAdd] = useState(false);

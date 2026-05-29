@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useListJournalEntries, useCreateJournalEntry, getListJournalEntriesQueryKey } from "@workspace/api-client-react";
+import { usePageTheme } from "@/hooks/use-page-theme";
 import { useQueryClient } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { BookOpen, Plus, PenLine } from "lucide-react";
 
 export default function JournalPage() {
+  usePageTheme("linear-gradient(135deg, #fdf6ec 0%, #f9eedf 40%, #fdf5ec 70%, #f5efe8 100%)");
   const { data: entries, isLoading } = useListJournalEntries();
   const createEntry = useCreateJournalEntry();
   const queryClient = useQueryClient();

@@ -23,13 +23,13 @@ export default function LandingPage() {
           filter: "blur(30px)",
         }} />
         <img
-          src="/logo-transparent.png"
+          src="/logo.png"
           alt=""
           aria-hidden="true"
           style={{
-            width: 520, height: 520, objectFit: "contain",
-            opacity: 0.22,
-            filter: "brightness(1.4) saturate(1.3)",
+            width: 420, height: 420, objectFit: "contain",
+            opacity: 0.18,
+            filter: "brightness(2.5) saturate(0.4)",
           }}
         />
       </div>
@@ -40,10 +40,13 @@ export default function LandingPage() {
       {/* Nav */}
       <header className="absolute top-0 left-0 right-0 p-6 flex items-center justify-between z-20">
         <div className="flex items-center gap-2.5">
-          <div className="w-9 h-9 rounded-lg overflow-hidden bg-white/10 backdrop-blur-sm border border-white/20 flex items-center justify-center">
-            <img src="/logo-transparent.png" alt="Mind Mitra" className="w-7 h-7 object-contain" />
+          <div className="w-9 h-9 rounded-xl overflow-hidden shadow-md" style={{ background: "linear-gradient(135deg, #c4788a 0%, #a05870 100%)" }}>
+            <img src="/logo.png" alt="Calmora" className="w-full h-full object-contain p-1.5" />
           </div>
-          <span className="text-xl font-bold text-white tracking-tight">Mind Mitra</span>
+          <div>
+            <span className="text-xl font-bold text-white tracking-tight" style={{ fontFamily: "Georgia, serif" }}>Calmora</span>
+            <p className="text-[10px] text-white/50 leading-none">Your Safe Space</p>
+          </div>
         </div>
         <div className="flex items-center gap-3">
           <Link href="/login">

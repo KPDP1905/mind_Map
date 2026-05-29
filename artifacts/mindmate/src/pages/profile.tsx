@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useAuth } from "@/contexts/auth-context";
+import { usePageTheme } from "@/hooks/use-page-theme";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
@@ -29,6 +30,7 @@ function useLocalStorage<T>(key: string, defaultValue: T) {
 }
 
 export default function ProfilePage() {
+  usePageTheme("linear-gradient(135deg, #faf8f5 0%, #f5f0e8 50%, #faf8f5 100%)");
   const { user, isLoaded, logout } = useAuth();
   const { toast } = useToast();
   const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");

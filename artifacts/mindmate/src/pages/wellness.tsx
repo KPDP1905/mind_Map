@@ -71,6 +71,7 @@ const WELLNESS_HABITS = [
 /* ═══════════════════════════════════════════════════════════════════════════ */
 
 export default function WellnessPage() {
+  usePageTheme("linear-gradient(135deg, #f8f5f0 0%, #f2ece4 40%, #eff5ee 70%, #f5f8f0 100%)");
   const { data: affirmation, isLoading: loadingAff } = useGetDailyAffirmation();
   const { data: gratitudeEntries, isLoading: loadingGratitude } = useListGratitudeEntries();
   const createGratitude = useCreateGratitudeEntry();

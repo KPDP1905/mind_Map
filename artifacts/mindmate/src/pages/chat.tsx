@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { Link, useRoute } from "wouter";
+import { usePageTheme } from "@/hooks/use-page-theme";
 import { 
   useListOpenaiConversations, 
   useCreateOpenaiConversation,
@@ -328,6 +329,7 @@ export function ChatSession({ id }: { id: string }) {
 }
 
 export default function ChatPage() {
+  usePageTheme("linear-gradient(135deg, #eef4fb 0%, #e8eef8 35%, #ece8f5 65%, #f0eaf8 100%)");
   const [match, params] = useRoute("/chat/:id");
   
   if (match && params?.id) {

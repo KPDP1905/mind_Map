@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { usePageTheme } from "@/hooks/use-page-theme";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Gamepad2, Brain, RotateCcw, Trophy, Timer, Sigma } from "lucide-react";
@@ -316,6 +317,7 @@ const GAMES = [
 ];
 
 export default function GamesPage() {
+  usePageTheme("linear-gradient(135deg, #e8f2fc 0%, #deeaf8 35%, #e8f0fc 65%, #f0f4ff 100%)");
   const [active, setActive] = useState("memory");
   const ActiveGame = GAMES.find(g => g.id === active)!.component;
 

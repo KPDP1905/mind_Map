@@ -7,9 +7,10 @@ import { Activity, Flame, Heart, Brain, Calendar, CheckCircle2, Circle, Zap } fr
 import { useState } from "react";
 import { motion } from "framer-motion";
 import {
-  Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis,
-  LineChart, Line, CartesianGrid
+  ResponsiveContainer, Tooltip, XAxis, YAxis,
+  CartesianGrid, BarChart, Bar, Cell, RadarChart, PolarGrid, PolarAngleAxis, Radar
 } from "recharts";
+import { usePageTheme } from "@/hooks/use-page-theme";
 
 function useLS<T>(key: string, def: T) {
   const [v, setV] = useState<T>(() => {
@@ -157,19 +158,47 @@ function MentalEnergyWidget({ score }: { score: number }) {
   );
 }
 
-const CustomTooltip = ({ active, payload, label }: any) => {
+const MOOD_EMOJIS: Record<number, string> = { 2: "😢", 3: "😔", 4: "😔", 5: "😐", 6: "😐", 7: "🙂", 8: "🙂", 9: "😄", 10: "😄" };
+const MOOD_COLORS = ["#e08a8a","#e8a070","#e8c870","#8ec5e0","#7eb87e","#8ec5e0","#a080d0","#c47898"];
+
+function CustomBarTooltip({ active, payload, label }: any) {
   if (active && payload && payload.length) {
+    const score = payload[0].value;
     return (
-      <div className="bg-card border border-border rounded-xl px-3 py-2 shadow-lg">
-        <p className="text-xs font-medium text-muted-foreground">{label}</p>
-        <p className="text-sm font-bold text-foreground">{payload[0].value}<span className="text-xs text-muted-foreground font-normal"> /10</span></p>
+      <div className="rounded-2xl px-4 py-3 shadow-xl" style={{ background: "rgba(255,255,255,0.95)", border: "1px solid rgba(196,120,138,0.2)", backdropFilter: "blur(12px)" }}>
+        <p className="text-xs font-semibold mb-1" style={{ color: "#8b5060" }}>{label}</p>
+        <div className="flex items-center gap-2">
+          <span className="text-2xl">{MOOD_EMOJIS[Math.round(score)] || "😐"}</span>
+          <div>
+            <p className="text-lg font-bold" style={{ color: "#6b3a4a" }}>{score}<span className="text-xs font-normal text-gray-400">/10</span></p>
+            <p className="text-xs" style={{ color: "#a07080" }}>Mood score</p>
+          </div>
+        </div>
       </div>
     );
   }
   return null;
-};
+}
+
+function CustomBarShape(props: any) {
+  const { x, y, width, height, index } = props;
+  const color = MOOD_COLORS[index % MOOD_COLORS.length];
+  const r = Math.min(8, width / 2);
+  return (
+    <g>
+      <defs>
+        <linearGradient id={`bar-grad-${index}`} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={color} stopOpacity={0.9} />
+          <stop offset="100%" stopColor={color} stopOpacity={0.4} />
+        </linearGradient>
+      </defs>
+      <rect x={x} y={y} width={width} height={height} rx={r} ry={r} fill={`url(#bar-grad-${index})`} />
+    </g>
+  );
+}
 
 export default function DashboardPage() {
+  usePageTheme("linear-gradient(135deg, #F8EEEA 0%, #f5e8e4 40%, #f2ecf5 80%, #edf2f8 100%)");
   const { data: summary, isLoading: loadingSummary } = useGetDashboardSummary();
   const { data: activity, isLoading: loadingActivity } = useGetDashboardActivity();
 
@@ -183,20 +212,22 @@ export default function DashboardPage() {
     { day: "Sun", score: summary?.weeklyAverageMood ? Math.round(summary.weeklyAverageMood) : 7 },
   ];
 
-  const monthlyData = [
-    { week: "W1", score: 6.5 },
-    { week: "W2", score: 7.2 },
-    { week: "W3", score: 6.8 },
-    { week: "W4", score: summary?.weeklyAverageMood ?? 7.5 },
-  ];
-
   const energyScore = summary ? Math.min(Math.round((summary.wellnessScore ?? 70)), 100) : 72;
 
   return (
-    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 relative">
+      {/* Decorative sparkles */}
+      <div className="pointer-events-none absolute -top-4 right-0 w-64 h-64 opacity-30" style={{ background: "radial-gradient(circle, rgba(196,120,138,0.3) 0%, transparent 70%)" }} />
+      {[...Array(6)].map((_, i) => (
+        <motion.div key={i} className="sparkle pointer-events-none absolute text-rose-300/40 select-none"
+          style={{ top: `${5 + i * 14}%`, right: `${2 + (i % 3) * 8}%`, animationDelay: `${i * 0.5}s`, fontSize: "1.2rem" }}>
+          ✦
+        </motion.div>
+      ))}
+
       <div>
-        <h1 className="text-3xl font-bold tracking-tight text-foreground">Welcome back</h1>
-        <p className="text-muted-foreground mt-1 text-lg">Here is a gentle overview of your recent wellbeing.</p>
+        <h1 className="text-3xl font-bold tracking-tight font-serif-heading" style={{ fontFamily: "Georgia, serif", color: "#6b2a3a" }}>Welcome back 🌸</h1>
+        <p className="mt-1 text-lg" style={{ color: "#a07080" }}>Here is a gentle overview of your recent wellbeing.</p>
       </div>
 
       {loadingSummary ? (
@@ -253,41 +284,43 @@ export default function DashboardPage() {
       ) : null}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="col-span-1 lg:col-span-2 rounded-3xl border-border/50 shadow-sm overflow-hidden">
+        <Card className="col-span-1 lg:col-span-2 rounded-3xl border-border/50 shadow-sm overflow-hidden"
+          style={{ background: "rgba(255,255,255,0.75)", backdropFilter: "blur(16px)", border: "1px solid rgba(196,120,138,0.18)" }}>
           <CardHeader>
-            <CardTitle>Mood Trend</CardTitle>
-            <CardDescription>Your emotional journey this week</CardDescription>
+            <CardTitle className="font-serif-heading" style={{ fontFamily: "Georgia, serif", color: "#6b2a3a" }}>Mood Trend ✨</CardTitle>
+            <CardDescription style={{ color: "#a07080" }}>Your emotional journey this week</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="h-[240px] w-full">
+            {/* Emoji row above chart */}
+            <div className="flex justify-around mb-2 px-2">
+              {weeklyData.map((d, i) => (
+                <div key={i} className="flex flex-col items-center gap-0.5">
+                  <span className="text-base leading-none">{MOOD_EMOJIS[Math.round(d.score)] || "😐"}</span>
+                </div>
+              ))}
+            </div>
+            <div className="h-[200px] w-full">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={weeklyData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="moodGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.35}/>
-                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" vertical={false} />
-                  <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} dy={8} />
-                  <YAxis domain={[0, 10]} axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))' }} ticks={[0, 5, 10]} />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Area type="monotone" dataKey="score" stroke="hsl(var(--primary))" strokeWidth={2.5} fillOpacity={1} fill="url(#moodGrad)" dot={{ fill: "hsl(var(--primary))", r: 4, strokeWidth: 0 }} activeDot={{ r: 6, strokeWidth: 0 }} />
-                </AreaChart>
+                <BarChart data={weeklyData} margin={{ top: 4, right: 10, left: -20, bottom: 0 }} barCategoryGap="30%">
+                  <CartesianGrid strokeDasharray="2 4" stroke="rgba(196,120,138,0.12)" vertical={false} />
+                  <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{ fontSize: 11, fill: "#a07080", fontWeight: 500 }} dy={6} />
+                  <YAxis domain={[0, 10]} axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "#c0a0a8" }} ticks={[0, 5, 10]} />
+                  <Tooltip content={<CustomBarTooltip />} cursor={{ fill: "rgba(196,120,138,0.06)", radius: 8 }} />
+                  <Bar dataKey="score" shape={<CustomBarShape />} radius={[8, 8, 0, 0]}>
+                    {weeklyData.map((_, i) => (
+                      <Cell key={i} fill={MOOD_COLORS[i % MOOD_COLORS.length]} />
+                    ))}
+                  </Bar>
+                </BarChart>
               </ResponsiveContainer>
             </div>
-            <div className="mt-4 pt-4 border-t border-border/50">
-              <p className="text-xs font-medium text-muted-foreground mb-2">Monthly Overview</p>
-              <div className="h-[100px]">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={monthlyData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-                    <XAxis dataKey="week" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} />
-                    <YAxis domain={[0, 10]} axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} hide />
-                    <Tooltip content={<CustomTooltip />} />
-                    <Line type="monotone" dataKey="score" stroke="hsl(var(--secondary))" strokeWidth={2} dot={{ fill: "hsl(var(--secondary))", r: 3, strokeWidth: 0 }} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
+            {/* Mood legend */}
+            <div className="mt-4 pt-4 border-t flex flex-wrap gap-2 justify-center" style={{ borderColor: "rgba(196,120,138,0.15)" }}>
+              {[["😢 Terrible",2],["😔 Bad",4],["😐 Okay",6],["🙂 Good",8],["😄 Amazing",10]].map(([label]) => (
+                <span key={String(label)} className="text-xs px-2.5 py-1 rounded-full" style={{ background: "rgba(196,120,138,0.1)", color: "#8b5060" }}>
+                  {String(label)}
+                </span>
+              ))}
             </div>
           </CardContent>
         </Card>

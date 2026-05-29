@@ -1,13 +1,13 @@
 import { Link, useLocation } from "wouter";
 import { useAuth } from "@/contexts/auth-context";
 import { useEffect, useState } from "react";
-import { 
-  LayoutDashboard, 
-  Smile, 
-  MessageCircle, 
-  BookOpen, 
-  Sparkles, 
-  User, 
+import {
+  LayoutDashboard,
+  Smile,
+  MessageCircle,
+  BookOpen,
+  Sparkles,
+  User,
   LogOut,
   Menu,
   Shield,
@@ -58,38 +58,69 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   };
 
   const SidebarContent = ({ onNavClick }: { onNavClick?: () => void }) => (
-    <div className="flex flex-col h-full bg-sidebar border-r border-sidebar-border text-sidebar-foreground">
-      <div className="p-6 flex items-center gap-2.5">
-        <img src="/logo-transparent.png" alt="Mind Mitra" className="w-9 h-9 object-contain" />
-        <span className="text-xl font-bold tracking-tight">Mind Mitra</span>
+    <div className="flex flex-col h-full text-sidebar-foreground"
+      style={{ background: "linear-gradient(180deg, #fdf5f5 0%, #faf0f5 50%, #f5f0fa 100%)" }}>
+
+      {/* Brand */}
+      <div className="p-5 border-b border-rose-100/60">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl overflow-hidden flex-shrink-0 shadow-md"
+            style={{ background: "linear-gradient(135deg, #c4788a 0%, #a05870 100%)" }}>
+            <img src="/logo.png" alt="Calmora" className="w-full h-full object-contain p-1.5" />
+          </div>
+          <div>
+            <span className="text-lg font-bold tracking-tight font-serif-heading"
+              style={{ fontFamily: "Georgia, serif", color: "#8b3a52" }}>
+              Calmora
+            </span>
+            <p className="text-[10px] leading-tight" style={{ color: "#b07080" }}>
+              Your Safe Space
+            </p>
+          </div>
+        </div>
       </div>
-      <nav className="flex-1 px-4 space-y-0.5 overflow-y-auto">
+
+      <nav className="flex-1 px-3 py-3 space-y-0.5 overflow-y-auto">
         {navItems.map((item) => {
           const isActive = location === item.href || location.startsWith(`${item.href}/`);
           return (
             <Link key={item.href} href={item.href} onClick={onNavClick}>
-              <div className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-colors cursor-pointer ${
+              <div className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl transition-all cursor-pointer ${
                 item.href === "/admin"
-                  ? isActive ? "bg-amber-100 text-amber-800 font-medium" : "hover:bg-amber-50 text-amber-700"
+                  ? isActive
+                    ? "bg-amber-100 text-amber-800 font-medium shadow-sm"
+                    : "hover:bg-amber-50 text-amber-700"
                   : item.href === "/period-tracker"
-                  ? isActive ? "bg-rose-100 dark:bg-rose-950/40 text-rose-700 dark:text-rose-300 font-medium" : "hover:bg-rose-50 dark:hover:bg-rose-950/20 text-muted-foreground"
+                  ? isActive
+                    ? "text-rose-700 font-medium shadow-sm"
+                    : "hover:bg-rose-50/70 text-muted-foreground"
                   : item.href === "/meditation"
-                  ? isActive ? "bg-indigo-100 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 font-medium" : "hover:bg-indigo-50 dark:hover:bg-indigo-950/20 text-muted-foreground"
-                  : isActive ? "bg-sidebar-accent text-sidebar-accent-foreground font-medium" : "hover:bg-sidebar-accent/50 text-muted-foreground"
-              }`}>
-                <item.icon className="w-5 h-5 flex-shrink-0" />
+                  ? isActive
+                    ? "text-purple-700 font-medium shadow-sm"
+                    : "hover:bg-purple-50/70 text-muted-foreground"
+                  : isActive
+                    ? "font-medium shadow-sm"
+                    : "hover:bg-rose-50/50 text-muted-foreground"
+              }`}
+                style={isActive && item.href !== "/admin" ? {
+                  background: "linear-gradient(135deg, rgba(196,120,138,0.15), rgba(176,96,160,0.12))",
+                  color: "#8b3a52",
+                  border: "1px solid rgba(196,120,138,0.2)",
+                } : {}}>
+                <item.icon className="w-4.5 h-4.5 flex-shrink-0" style={{ width: "1.1rem", height: "1.1rem" }} />
                 <span className="truncate text-sm">{item.label}</span>
               </div>
             </Link>
           );
         })}
       </nav>
-      <div className="p-4 border-t border-sidebar-border mt-auto space-y-1">
-        <div className="flex items-center gap-2 px-2 py-2">
+
+      <div className="p-3 border-t border-rose-100/60 mt-auto space-y-1">
+        <div className="flex items-center gap-2 px-1 py-1">
           <Button
             variant="ghost"
             size="sm"
-            className="flex-1 justify-start gap-2 rounded-xl text-muted-foreground hover:text-foreground text-xs"
+            className="flex-1 justify-start gap-2 rounded-xl text-muted-foreground hover:text-foreground text-xs hover:bg-rose-50/60"
             onClick={toggleTheme}
           >
             {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
@@ -98,7 +129,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <Button
             variant="ghost"
             size="sm"
-            className="flex-1 justify-start gap-2 rounded-xl text-muted-foreground hover:text-foreground text-xs"
+            className="flex-1 justify-start gap-2 rounded-xl text-muted-foreground hover:text-foreground text-xs hover:bg-rose-50/60"
             onClick={() => setLang(lang === "en" ? "hi" : "en")}
           >
             <Languages className="w-4 h-4" />
@@ -106,17 +137,24 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </Button>
         </div>
 
-        <div className="flex items-center gap-3 px-4 py-2">
-          <div className="w-8 h-8 rounded-full bg-primary/10 overflow-hidden flex-shrink-0 flex items-center justify-center">
-            <User className="w-5 h-5 m-auto text-primary" />
+        <div className="flex items-center gap-3 px-3 py-2 rounded-xl"
+          style={{ background: "rgba(196,120,138,0.08)" }}>
+          <div className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center shadow-sm"
+            style={{ background: "linear-gradient(135deg, #c4788a, #a05870)" }}>
+            <User className="w-4 h-4 text-white" />
           </div>
           <div className="truncate">
-            <p className="text-sm font-medium truncate">{user?.displayName || user?.username || 'User'}</p>
-            <p className="text-xs text-muted-foreground truncate">@{user?.username}</p>
+            <p className="text-sm font-medium truncate" style={{ color: "#6b2a3a" }}>{user?.displayName || user?.username || "User"}</p>
+            <p className="text-xs truncate" style={{ color: "#b07080" }}>@{user?.username}</p>
           </div>
         </div>
-        <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-foreground" onClick={handleSignOut}>
-          <LogOut className="w-5 h-5 mr-3" />
+
+        <Button
+          variant="ghost"
+          className="w-full justify-start text-muted-foreground hover:text-rose-700 hover:bg-rose-50/60 rounded-xl text-sm"
+          onClick={handleSignOut}
+        >
+          <LogOut className="w-4 h-4 mr-3" />
           {t("signOut")}
         </Button>
       </div>
@@ -127,15 +165,28 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="flex min-h-screen app-bg text-foreground">
-      <aside className="hidden md:flex w-64 flex-col fixed inset-y-0">
+      <aside className="hidden md:flex w-64 flex-col fixed inset-y-0 shadow-lg"
+        style={{ borderRight: "1px solid rgba(196,120,138,0.18)" }}>
         <SidebarContent />
       </aside>
 
       <div className="flex-1 flex flex-col md:ml-64 min-w-0">
-        <header className="md:hidden flex items-center justify-between p-4 border-b border-border bg-background/80 backdrop-blur-sm sticky top-0 z-10">
-          <div className="flex items-center gap-2">
-            <img src="/logo-transparent.png" alt="Mind Mitra" className="w-7 h-7 object-contain" />
-            <span className="text-lg font-bold tracking-tight">Mind Mitra</span>
+        <header className="md:hidden flex items-center justify-between p-4 sticky top-0 z-10"
+          style={{
+            background: "rgba(253,245,245,0.88)",
+            backdropFilter: "blur(16px)",
+            borderBottom: "1px solid rgba(196,120,138,0.15)"
+          }}>
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-lg overflow-hidden shadow-sm"
+              style={{ background: "linear-gradient(135deg, #c4788a 0%, #a05870 100%)" }}>
+              <img src="/logo.png" alt="Calmora" className="w-full h-full object-contain p-1" />
+            </div>
+            <div>
+              <span className="text-base font-bold" style={{ fontFamily: "Georgia, serif", color: "#8b3a52" }}>
+                Calmora
+              </span>
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <Button variant="ghost" size="icon" onClick={toggleTheme} className="rounded-full">

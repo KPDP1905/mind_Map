@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useCreateMood, useListMoods, getListMoodsQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { usePageTheme } from "@/hooks/use-page-theme";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -136,6 +137,7 @@ const MOOD_GAME_TIPS: Record<string, string> = {
 };
 
 export default function MoodPage() {
+  usePageTheme("linear-gradient(160deg, #2d1b4e 0%, #5a2060 30%, #c4608a 65%, #f4a060 100%)");
   const [selectedMood, setSelectedMood] = useState<typeof MOODS[0] | null>(null);
   const [note, setNote] = useState("");
   const [loggedMood, setLoggedMood] = useState<typeof MOODS[0] | null>(null);

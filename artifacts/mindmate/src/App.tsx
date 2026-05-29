@@ -4,6 +4,8 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { ErrorBoundary } from "@/components/error-boundary";
 import { AuthProvider, useAuth } from "@/contexts/auth-context";
+import { useState, useCallback } from "react";
+import SplashScreen from "@/components/splash";
 
 import LandingPage from "./pages/landing";
 import DashboardPage from "./pages/dashboard";
@@ -70,8 +72,18 @@ function AppRoutes() {
 }
 
 function App() {
+  const [splashDone, setSplashDone] = useState(() => {
+    return sessionStorage.getItem("calmora_splash_seen") === "1";
+  });
+
+  const handleSplashDone = useCallback(() => {
+    sessionStorage.setItem("calmora_splash_seen", "1");
+    setSplashDone(true);
+  }, []);
+
   return (
     <ErrorBoundary>
+      {!splashDone && <SplashScreen onDone={handleSplashDone} />}
       <WouterRouter base={basePath}>
         <QueryClientProvider client={queryClient}>
           <AuthProvider>

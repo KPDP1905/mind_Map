@@ -1,0 +1,21 @@
+1.Logo i attached 
+2.name of the app is :- Calmora – Your Safe Space for Mental Wellness
+3.Add annimation when the app is start with logo nd name of the app.
+4. Mood Trend Graph in Dashboard i don't like good so do that unique and attractive.
+5. Daily Checklist Submti button required and after that submit they can't able to submit twince in a day only once they can submit. user can also check previous mood details also so they hve to save 30 days records.
+6. When we log mood in mood tracker the Describition aur reason is cumpolisory after that only they have to allow for log mood.
+7. AI Chat bot is not working i means they are not talking and chating with user. they have to work like a Chat GPt i means like a human talks.
+8. Daily Affirmatiuon have been changed by default but it was ot changing daily it was same as it is so please fix it. 
+9. in Box Breathing they have not added Start Button for inhale exhale excersie so add it.
+10. Gratitude log have been suggestion text also.
+11. Pomodora Focus module need to replace i don't understand so change with something else nd remove pomodora.
+12. Water Tranker has a individual module like mood drasker and dasboard.
+13. in meditation section we can select any thing they have to play som sound like sleeping sound in sleeping module. Yoga related calm song in Yoga modules, etc.
+14. Periods tracker have a theme like a Girls because they are using by girls users,
+15. Languange is only Hindi & english instead of this i want all languages.
+16. Add one module " Learn Phsycology" in this they have to add some option like what is phscology?the perspective of pscology?Goals of physology?What is disorders? Why it was important?
+Childhood trauma/Yoga/meditation.  & Phycologist theory means and in that they have to give some famous pysoligist which have noted history and in that all experiments and conclusion and means every thing also attcah the youtube video of there biograpy.
+17. Give options of some 10-12 sounds for notification and they can also put every tracker in different notitication so add this.
+18. In journal when we write they have to ask Why/What/When and after that Ai have to give suggestion what to do and what not to do.
+19. I m admin and i want to do advertisment of different companis to earn money so in that also add this function. 
+20. Add Sleep schedule as a different module like dashboard/mood tracker.
