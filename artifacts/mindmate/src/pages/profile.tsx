@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useAuth } from "@/contexts/auth-context";
 import { usePageTheme } from "@/hooks/use-page-theme";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -7,7 +7,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { User, LogOut, Settings, Bell, Shield, ChevronDown, ChevronUp, Download } from "lucide-react";
+import { User, LogOut, Settings, Bell, Shield, ChevronDown, ChevronUp, Download, Volume2, Play } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
 
@@ -29,6 +29,41 @@ function useLocalStorage<T>(key: string, defaultValue: T) {
   return [value, set] as const;
 }
 
+const NOTIFICATION_SOUNDS = [
+  { id: "gentle_chime",    label: "Gentle Chime",    emoji: "🔔", freqs: [523, 659, 784],      dur: 0.3, vol: 0.25, type: "sine" as OscillatorType },
+  { id: "soft_bell",       label: "Soft Bell",        emoji: "🛎️", freqs: [880, 1108],          dur: 0.5, vol: 0.2,  type: "sine" as OscillatorType },
+  { id: "meditation_bowl", label: "Meditation Bowl",  emoji: "🎵", freqs: [220, 330],           dur: 1.2, vol: 0.15, type: "sine" as OscillatorType },
+  { id: "crystal_bell",    label: "Crystal Bell",     emoji: "✨", freqs: [1047, 1319, 1568],   dur: 0.25, vol: 0.2, type: "triangle" as OscillatorType },
+  { id: "wind_chime",      label: "Wind Chime",       emoji: "🌬️", freqs: [622, 740, 880, 988], dur: 0.2,  vol: 0.2, type: "triangle" as OscillatorType },
+  { id: "rain_drop",       label: "Rain Drop",        emoji: "💧", freqs: [1200, 900],          dur: 0.15, vol: 0.3, type: "sine" as OscillatorType },
+  { id: "wooden_tap",      label: "Wooden Tap",       emoji: "🥁", freqs: [200, 160],           dur: 0.1,  vol: 0.35, type: "triangle" as OscillatorType },
+  { id: "soft_ping",       label: "Soft Ping",        emoji: "📳", freqs: [1568],              dur: 0.4,  vol: 0.2,  type: "sine" as OscillatorType },
+  { id: "deep_bell",       label: "Deep Bell",        emoji: "🔮", freqs: [110, 165],           dur: 1.0,  vol: 0.2,  type: "sine" as OscillatorType },
+  { id: "ocean_ding",      label: "Ocean Ding",       emoji: "🌊", freqs: [392, 494, 587],      dur: 0.4,  vol: 0.15, type: "sine" as OscillatorType },
+  { id: "forest_whistle",  label: "Forest Whistle",   emoji: "🌿", freqs: [740, 880, 1047],     dur: 0.2,  vol: 0.18, type: "triangle" as OscillatorType },
+  { id: "morning_tone",    label: "Morning Tone",     emoji: "🌅", freqs: [440, 554, 659, 880], dur: 0.3,  vol: 0.2,  type: "sine" as OscillatorType },
+];
+
+function playNotificationSound(sound: typeof NOTIFICATION_SOUNDS[0]) {
+  try {
+    const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
+    const { freqs, dur, vol, type } = sound;
+    freqs.forEach((freq, i) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = type;
+      osc.frequency.setValueAtTime(freq, ctx.currentTime + i * dur * 0.6);
+      gain.gain.setValueAtTime(vol, ctx.currentTime + i * dur * 0.6);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * dur * 0.6 + dur + 0.2);
+      osc.start(ctx.currentTime + i * dur * 0.6);
+      osc.stop(ctx.currentTime + i * dur * 0.6 + dur + 0.3);
+    });
+    setTimeout(() => ctx.close(), (freqs.length * dur * 0.6 + dur + 0.5) * 1000);
+  } catch {}
+}
+
 export default function ProfilePage() {
   usePageTheme("linear-gradient(135deg, #faf8f5 0%, #f5f0e8 50%, #faf8f5 100%)");
   const { user, isLoaded, logout } = useAuth();
@@ -42,12 +77,21 @@ export default function ProfilePage() {
   const [notifWeeklyReport, setNotifWeeklyReport] = useLocalStorage("mm_notif_weekly", true);
   const [notifAffirmations, setNotifAffirmations] = useLocalStorage("mm_notif_affirmations", true);
   const [notifTips, setNotifTips] = useLocalStorage("mm_notif_tips", false);
+  const [notifSound, setNotifSound] = useLocalStorage("mm_notif_sound", "gentle_chime");
+  const [playingId, setPlayingId] = useState<string | null>(null);
 
   const toggle = (section: Section) => setOpenSection(prev => prev === section ? null : section);
 
   const handleSignOut = async () => {
     await logout();
     window.location.href = BASE || "/";
+  };
+
+  const handlePreviewSound = (sound: typeof NOTIFICATION_SOUNDS[0]) => {
+    setPlayingId(sound.id);
+    playNotificationSound(sound);
+    const totalDur = sound.freqs.length * sound.dur * 0.6 + sound.dur + 0.5;
+    setTimeout(() => setPlayingId(null), totalDur * 1000);
   };
 
   const handleExportData = () => {
@@ -60,7 +104,7 @@ export default function ProfilePage() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "mindmitra-data.json";
+    a.download = "calmora-data.json";
     a.click();
     URL.revokeObjectURL(url);
     toast({ title: "Data exported", description: "Your profile data has been downloaded." });
@@ -153,6 +197,13 @@ export default function ProfilePage() {
                               <SelectItem value="mr">🇮🇳 Marathi</SelectItem>
                               <SelectItem value="ta">🇮🇳 Tamil</SelectItem>
                               <SelectItem value="te">🇮🇳 Telugu</SelectItem>
+                              <SelectItem value="bn">🇧🇩 Bengali</SelectItem>
+                              <SelectItem value="gu">🇮🇳 Gujarati</SelectItem>
+                              <SelectItem value="pa">🇮🇳 Punjabi</SelectItem>
+                              <SelectItem value="ml">🇮🇳 Malayalam</SelectItem>
+                              <SelectItem value="kn">🇮🇳 Kannada</SelectItem>
+                              <SelectItem value="es">🇪🇸 Spanish</SelectItem>
+                              <SelectItem value="fr">🇫🇷 French</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
@@ -181,8 +232,8 @@ export default function ProfilePage() {
                     <Bell className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="font-medium text-foreground">Notifications</h3>
-                    <p className="text-sm text-muted-foreground">Daily reminders and alerts</p>
+                    <h3 className="font-medium text-foreground">Notifications & Sounds</h3>
+                    <p className="text-sm text-muted-foreground">Daily reminders, alerts, and notification tones</p>
                   </div>
                 </div>
                 {openSection === "notifications" ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
@@ -217,6 +268,49 @@ export default function ProfilePage() {
                             />
                           </div>
                         ))}
+
+                        {/* Notification Sound Picker */}
+                        <div className="pt-2">
+                          <div className="flex items-center gap-2 mb-3">
+                            <Volume2 className="w-4 h-4 text-blue-500" />
+                            <p className="text-sm font-semibold text-foreground">Notification Sound</p>
+                            <span className="text-xs text-muted-foreground ml-auto">
+                              {NOTIFICATION_SOUNDS.find(s => s.id === notifSound)?.emoji}{" "}
+                              {NOTIFICATION_SOUNDS.find(s => s.id === notifSound)?.label}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                            {NOTIFICATION_SOUNDS.map(sound => {
+                              const isSelected = notifSound === sound.id;
+                              const isPlaying = playingId === sound.id;
+                              return (
+                                <button key={sound.id}
+                                  onClick={() => {
+                                    setNotifSound(sound.id);
+                                    handlePreviewSound(sound);
+                                    toast({ title: `Sound: ${sound.label}`, description: "Notification sound updated" });
+                                  }}
+                                  className={`flex items-center gap-2 p-3 rounded-2xl border text-left transition-all ${
+                                    isSelected
+                                      ? "bg-blue-50 dark:bg-blue-950/20 border-blue-300 dark:border-blue-700"
+                                      : "bg-background border-border/50 hover:bg-muted/30"
+                                  }`}
+                                >
+                                  <span className="text-base leading-none">{sound.emoji}</span>
+                                  <span className={`text-xs font-medium flex-1 truncate ${isSelected ? "text-blue-700 dark:text-blue-300" : "text-foreground"}`}>
+                                    {sound.label}
+                                  </span>
+                                  {isPlaying
+                                    ? <span className="w-3.5 h-3.5 rounded-full bg-blue-400 animate-pulse flex-shrink-0" />
+                                    : <Play className={`w-3 h-3 flex-shrink-0 ${isSelected ? "text-blue-500" : "text-muted-foreground/40"}`} />
+                                  }
+                                </button>
+                              );
+                            })}
+                          </div>
+                          <p className="text-xs text-muted-foreground mt-2 px-1">Click any sound to preview and select it.</p>
+                        </div>
+
                         <p className="text-xs text-muted-foreground px-1">Preferences saved to your device.</p>
                       </div>
                     </div>

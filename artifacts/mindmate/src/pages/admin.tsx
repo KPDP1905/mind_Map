@@ -1,214 +1,309 @@
-import { useUser } from "@clerk/react";
+import { useAuth } from "@/contexts/auth-context";
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Users, UserCheck, TrendingUp, Activity, Shield, Copy } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { format } from "date-fns";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/hooks/use-toast";
+import { usePageTheme } from "@/hooks/use-page-theme";
+import { Users, TrendingUp, Shield, Plus, Trash2, Eye, EyeOff, Megaphone, ExternalLink, Image } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
 
-type AdminStats = {
-  totalUsers: number;
-  newThisWeek: number;
-  newThisMonth: number;
-  activeThisWeek: number;
-};
+const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
 
-type AdminUser = {
+type AdminStats = { totalUsers: number; newThisWeek: number; newThisMonth: number; activeThisWeek: number };
+
+interface Ad {
   id: string;
-  name: string;
-  email: string;
+  title: string;
+  description: string;
   imageUrl: string;
+  linkUrl: string;
+  company: string;
+  active: boolean;
   createdAt: string;
-  lastSignInAt: string | null;
-};
+  clicks: number;
+}
 
-type MeResponse = {
-  userId: string;
-  isAdmin: boolean;
-  adminConfigured: boolean;
-};
+function useAds() {
+  const [ads, setAds] = useState<Ad[]>(() => {
+    try { return JSON.parse(localStorage.getItem("calmora_ads") || "[]"); } catch { return []; }
+  });
+  const save = (next: Ad[]) => { setAds(next); localStorage.setItem("calmora_ads", JSON.stringify(next)); };
+  const add = (ad: Omit<Ad, "id" | "createdAt" | "clicks">) => {
+    save([...ads, { ...ad, id: Date.now().toString(), createdAt: new Date().toISOString(), clicks: 0 }]);
+  };
+  const remove = (id: string) => save(ads.filter(a => a.id !== id));
+  const toggle = (id: string) => save(ads.map(a => a.id === id ? { ...a, active: !a.active } : a));
+  return { ads, add, remove, toggle };
+}
 
 export default function AdminPage() {
-  const { user } = useUser();
-  const [me, setMe] = useState<MeResponse | null>(null);
-  const [stats, setStats] = useState<AdminStats | null>(null);
-  const [users, setUsers] = useState<AdminUser[]>([]);
-  const [total, setTotal] = useState(0);
+  usePageTheme("linear-gradient(135deg, #fdfaf7 0%, #faf5f0 40%, #f8f5fd 70%, #fdf8f5 100%)");
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const { ads, add, remove, toggle } = useAds();
+
+  const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [copied, setCopied] = useState(false);
+  const [stats, setStats] = useState<AdminStats | null>(null);
+  const [tab, setTab] = useState<"overview" | "ads">("overview");
+
+  const [newAd, setNewAd] = useState({
+    title: "", description: "", imageUrl: "", linkUrl: "", company: "", active: true,
+  });
+  const [showAdForm, setShowAdForm] = useState(false);
 
   useEffect(() => {
-    fetch("/api/admin/me")
-      .then((r) => r.json())
-      .then((data: MeResponse) => {
-        setMe(data);
-        if (data.isAdmin) {
-          return Promise.all([
-            fetch("/api/admin/stats").then((r) => r.json()),
-            fetch("/api/admin/users").then((r) => r.json()),
-          ]).then(([statsData, usersData]) => {
-            setStats(statsData);
-            setUsers(usersData.users);
-            setTotal(usersData.total);
-          });
+    fetch(`${BASE}/api/admin/me`, { credentials: "include" })
+      .then(r => r.json())
+      .then(d => {
+        setIsAdmin(!!d.isAdmin);
+        if (d.isAdmin) {
+          fetch(`${BASE}/api/admin/stats`, { credentials: "include" })
+            .then(r => r.json())
+            .then(setStats)
+            .catch(() => {});
         }
       })
-      .catch((e) => setError(e.message))
+      .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
-  const copyUserId = () => {
-    if (me?.userId) {
-      navigator.clipboard.writeText(me.userId);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
+  const handleAddAd = () => {
+    if (!newAd.title.trim() || !newAd.company.trim() || !newAd.linkUrl.trim()) {
+      toast({ title: "Please fill in title, company, and link URL", variant: "destructive" });
+      return;
     }
+    add(newAd);
+    setNewAd({ title: "", description: "", imageUrl: "", linkUrl: "", company: "", active: true });
+    setShowAdForm(false);
+    toast({ title: "✅ Advertisement added!", description: "It will appear in the app for users." });
   };
 
   if (loading) {
     return (
-      <div className="space-y-6 animate-in fade-in duration-500">
+      <div className="space-y-6">
         <Skeleton className="h-10 w-64 rounded-xl" />
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-28 rounded-2xl" />)}
         </div>
-        <Skeleton className="h-96 rounded-2xl" />
       </div>
     );
   }
 
-  if (!me?.adminConfigured || !me?.isAdmin) {
+  if (!isAdmin) {
     return (
-      <div className="max-w-2xl mx-auto animate-in fade-in duration-500">
-        <div className="rounded-3xl border border-amber-200 bg-amber-50 p-8 text-center space-y-4">
+      <div className="max-w-lg mx-auto animate-in fade-in duration-500">
+        <Card className="rounded-3xl border-amber-200 bg-amber-50 shadow-sm text-center p-8 space-y-4">
           <div className="w-16 h-16 rounded-full bg-amber-100 flex items-center justify-center mx-auto">
             <Shield className="w-8 h-8 text-amber-600" />
           </div>
-          <h1 className="text-2xl font-bold text-foreground">Admin Setup Required</h1>
-          {!me?.adminConfigured ? (
-            <>
-              <p className="text-muted-foreground leading-relaxed">
-                To access the admin panel, set your Clerk user ID as the <code className="bg-amber-100 px-1.5 py-0.5 rounded text-sm font-mono">ADMIN_USER_ID</code> environment variable in Replit Secrets.
-              </p>
-              <div className="bg-white rounded-2xl border border-amber-200 p-4 space-y-3">
-                <p className="text-sm font-medium text-foreground">Your Clerk User ID:</p>
-                <div className="flex items-center gap-2 bg-muted/50 rounded-xl px-4 py-3 font-mono text-sm text-foreground">
-                  <span className="flex-1 truncate">{me?.userId || "Loading..."}</span>
-                  <Button size="sm" variant="ghost" className="h-7 px-2 rounded-lg" onClick={copyUserId}>
-                    {copied ? "Copied!" : <Copy className="w-4 h-4" />}
-                  </Button>
-                </div>
-                <ol className="text-sm text-muted-foreground text-left space-y-1 list-decimal list-inside">
-                  <li>Copy your user ID above</li>
-                  <li>Open Replit Secrets (the lock icon in the sidebar)</li>
-                  <li>Add a new secret: key <code className="bg-muted px-1 rounded">ADMIN_USER_ID</code>, value = your user ID</li>
-                  <li>Restart the API server workflow</li>
-                  <li>Reload this page</li>
-                </ol>
-              </div>
-            </>
-          ) : (
-            <p className="text-muted-foreground">You don't have admin access. Only the configured admin can view this page.</p>
-          )}
-        </div>
+          <h1 className="text-2xl font-bold text-foreground">Admin Access Required</h1>
+          <p className="text-muted-foreground">You don't have admin access. Only the configured admin can view this page.</p>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight text-foreground flex items-center gap-3">
-          <Shield className="w-7 h-7 text-primary" />
-          Admin Panel
-        </h1>
-        <p className="text-muted-foreground mt-1">Manage your Mind Mitra users and platform stats.</p>
+    <div className="max-w-5xl mx-auto space-y-8 animate-in fade-in duration-500">
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight flex items-center gap-3" style={{ fontFamily: "Georgia, serif" }}>
+            <Shield className="w-7 h-7 text-primary" />
+            Admin Panel
+          </h1>
+          <p className="text-muted-foreground mt-1">Manage Calmora users and advertisements.</p>
+        </div>
+        <div className="text-sm text-muted-foreground bg-muted/30 px-3 py-1.5 rounded-full">
+          👋 {user?.displayName || user?.username}
+        </div>
       </div>
 
-      {stats && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <StatCard icon={<Users className="w-5 h-5" />} label="Total Users" value={stats.totalUsers} color="blue" />
-          <StatCard icon={<TrendingUp className="w-5 h-5" />} label="New This Week" value={stats.newThisWeek} color="green" />
-          <StatCard icon={<UserCheck className="w-5 h-5" />} label="New This Month" value={stats.newThisMonth} color="purple" />
-          <StatCard icon={<Activity className="w-5 h-5" />} label="Active This Week" value={stats.activeThisWeek} color="orange" />
-        </div>
-      )}
+      {/* Tabs */}
+      <div className="flex gap-2 p-1 bg-muted/30 rounded-2xl w-fit">
+        {(["overview", "ads"] as const).map(t => (
+          <button key={t} onClick={() => setTab(t)}
+            className={`px-5 py-2 rounded-xl text-sm font-medium transition-all capitalize ${
+              tab === t ? "bg-white shadow-sm text-foreground" : "text-muted-foreground hover:text-foreground"
+            }`}>
+            {t === "overview" ? "📊 Overview" : "📢 Advertisements"}
+          </button>
+        ))}
+      </div>
 
-      <Card className="rounded-3xl border-border/50 shadow-sm overflow-hidden">
-        <CardHeader className="pb-4 border-b border-border/50">
-          <CardTitle className="text-xl font-semibold flex items-center gap-2">
-            <Users className="w-5 h-5 text-primary" />
-            All Users
-            <span className="ml-auto text-sm font-normal text-muted-foreground">{total} total</span>
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="p-0">
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-muted/30 border-b border-border/50">
-                  <th className="px-6 py-3 text-left font-medium text-muted-foreground">User</th>
-                  <th className="px-6 py-3 text-left font-medium text-muted-foreground">Email</th>
-                  <th className="px-6 py-3 text-left font-medium text-muted-foreground">Joined</th>
-                  <th className="px-6 py-3 text-left font-medium text-muted-foreground">Last Active</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border/30">
-                {users.map((u) => (
-                  <tr key={u.id} className="hover:bg-muted/20 transition-colors">
-                    <td className="px-6 py-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-primary/10 overflow-hidden flex-shrink-0 flex items-center justify-center">
-                          {u.imageUrl ? (
-                            <img src={u.imageUrl} alt={u.name} className="w-full h-full object-cover" />
-                          ) : (
-                            <span className="text-primary font-semibold text-sm">{u.name[0]?.toUpperCase() || "?"}</span>
-                          )}
+      <AnimatePresence mode="wait">
+        <motion.div key={tab} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+          {tab === "overview" && (
+            <div className="space-y-6">
+              {stats && (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  {[
+                    { label: "Total Users", value: stats.totalUsers, icon: Users, color: "#3b82f6" },
+                    { label: "New This Week", value: stats.newThisWeek, icon: TrendingUp, color: "#10b981" },
+                    { label: "New This Month", value: stats.newThisMonth, icon: Users, color: "#8b5cf6" },
+                    { label: "Active This Week", value: stats.activeThisWeek, icon: TrendingUp, color: "#f59e0b" },
+                  ].map(({ label, value, icon: Icon, color }) => (
+                    <Card key={label} className="rounded-2xl border-border/50 shadow-sm">
+                      <CardContent className="p-5">
+                        <Icon className="w-5 h-5 mb-3" style={{ color }} />
+                        <p className="text-3xl font-bold text-foreground">{(value || 0).toLocaleString()}</p>
+                        <p className="text-sm text-muted-foreground mt-1">{label}</p>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+
+              <Card className="rounded-3xl border-border/50 shadow-sm">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <Megaphone className="w-5 h-5 text-primary" />
+                    Active Ads Summary
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-3 gap-4 text-center">
+                    <div className="p-4 rounded-2xl bg-muted/30">
+                      <p className="text-2xl font-bold text-foreground">{ads.length}</p>
+                      <p className="text-xs text-muted-foreground">Total Ads</p>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-green-50">
+                      <p className="text-2xl font-bold text-green-600">{ads.filter(a => a.active).length}</p>
+                      <p className="text-xs text-muted-foreground">Active</p>
+                    </div>
+                    <div className="p-4 rounded-2xl bg-muted/30">
+                      <p className="text-2xl font-bold text-foreground">{ads.reduce((s, a) => s + a.clicks, 0)}</p>
+                      <p className="text-xs text-muted-foreground">Total Clicks</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {tab === "ads" && (
+            <div className="space-y-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-xl font-bold text-foreground">Advertisements</h2>
+                  <p className="text-sm text-muted-foreground mt-0.5">Manage company ads shown inside Calmora.</p>
+                </div>
+                <Button onClick={() => setShowAdForm(true)} className="rounded-full gap-2">
+                  <Plus className="w-4 h-4" /> Add New Ad
+                </Button>
+              </div>
+
+              {/* Add Ad Form */}
+              <AnimatePresence>
+                {showAdForm && (
+                  <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+                    <Card className="rounded-3xl border-primary/20 shadow-md">
+                      <CardHeader>
+                        <CardTitle className="text-base flex items-center gap-2">
+                          <Megaphone className="w-4 h-4 text-primary" /> New Advertisement
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-4">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-xs font-medium text-muted-foreground mb-1 block">Company Name *</label>
+                            <Input placeholder="e.g. Yoga Studio, Healthy Foods Co." value={newAd.company}
+                              onChange={e => setNewAd(a => ({ ...a, company: e.target.value }))} className="rounded-xl" />
+                          </div>
+                          <div>
+                            <label className="text-xs font-medium text-muted-foreground mb-1 block">Ad Title *</label>
+                            <Input placeholder="e.g. Try our 14-day free trial!" value={newAd.title}
+                              onChange={e => setNewAd(a => ({ ...a, title: e.target.value }))} className="rounded-xl" />
+                          </div>
                         </div>
                         <div>
-                          <p className="font-medium text-foreground">{u.name}</p>
-                          <p className="text-xs text-muted-foreground font-mono truncate max-w-[120px]">{u.id}</p>
+                          <label className="text-xs font-medium text-muted-foreground mb-1 block">Description</label>
+                          <Textarea placeholder="Short description of the offer..." value={newAd.description}
+                            onChange={e => setNewAd(a => ({ ...a, description: e.target.value }))}
+                            className="rounded-xl resize-none" rows={2} />
                         </div>
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 text-muted-foreground">{u.email}</td>
-                    <td className="px-6 py-4 text-muted-foreground">{format(new Date(u.createdAt), "MMM d, yyyy")}</td>
-                    <td className="px-6 py-4 text-muted-foreground">
-                      {u.lastSignInAt ? format(new Date(u.lastSignInAt), "MMM d, yyyy") : "Never"}
-                    </td>
-                  </tr>
-                ))}
-                {users.length === 0 && (
-                  <tr>
-                    <td colSpan={4} className="px-6 py-12 text-center text-muted-foreground">No users yet</td>
-                  </tr>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-xs font-medium text-muted-foreground mb-1 block">Image URL (optional)</label>
+                            <Input placeholder="https://..." value={newAd.imageUrl}
+                              onChange={e => setNewAd(a => ({ ...a, imageUrl: e.target.value }))} className="rounded-xl" />
+                          </div>
+                          <div>
+                            <label className="text-xs font-medium text-muted-foreground mb-1 block">Link URL *</label>
+                            <Input placeholder="https://yourcompany.com" value={newAd.linkUrl}
+                              onChange={e => setNewAd(a => ({ ...a, linkUrl: e.target.value }))} className="rounded-xl" />
+                          </div>
+                        </div>
+                        <div className="flex gap-2 pt-2">
+                          <Button onClick={handleAddAd} className="rounded-full flex-1">Save Ad</Button>
+                          <Button variant="ghost" onClick={() => setShowAdForm(false)} className="rounded-full flex-1">Cancel</Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
                 )}
-              </tbody>
-            </table>
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
+              </AnimatePresence>
 
-function StatCard({ icon, label, value, color }: { icon: React.ReactNode; label: string; value: number; color: string }) {
-  const colors: Record<string, string> = {
-    blue: "bg-blue-50 text-blue-600",
-    green: "bg-green-50 text-green-600",
-    purple: "bg-purple-50 text-purple-600",
-    orange: "bg-orange-50 text-orange-600",
-  };
-  return (
-    <Card className="rounded-2xl border-border/50 shadow-sm">
-      <CardContent className="p-5">
-        <div className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${colors[color]}`}>
-          {icon}
-        </div>
-        <p className="text-3xl font-bold text-foreground">{value.toLocaleString()}</p>
-        <p className="text-sm text-muted-foreground mt-1">{label}</p>
-      </CardContent>
-    </Card>
+              {/* Ads List */}
+              {ads.length === 0 ? (
+                <div className="text-center py-16 border border-dashed rounded-3xl bg-muted/5">
+                  <Megaphone className="w-10 h-10 mx-auto text-muted-foreground/30 mb-3" />
+                  <p className="text-muted-foreground font-medium">No advertisements yet</p>
+                  <p className="text-sm text-muted-foreground/70 mt-1">Add your first ad to start earning from Calmora.</p>
+                </div>
+              ) : (
+                <div className="grid gap-4">
+                  {ads.map((ad) => (
+                    <Card key={ad.id} className={`rounded-2xl border-border/50 shadow-sm transition-all ${!ad.active ? "opacity-60" : ""}`}>
+                      <CardContent className="p-5 flex items-start gap-4">
+                        {ad.imageUrl ? (
+                          <img src={ad.imageUrl} alt={ad.title}
+                            className="w-16 h-16 rounded-xl object-cover flex-shrink-0 border border-border/50" />
+                        ) : (
+                          <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center flex-shrink-0">
+                            <Image className="w-6 h-6 text-muted-foreground" />
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <p className="font-semibold text-foreground truncate">{ad.title}</p>
+                            <span className={`text-xs px-2 py-0.5 rounded-full flex-shrink-0 font-medium ${
+                              ad.active ? "bg-green-100 text-green-700" : "bg-muted text-muted-foreground"
+                            }`}>
+                              {ad.active ? "Active" : "Paused"}
+                            </span>
+                          </div>
+                          <p className="text-xs text-primary font-medium">{ad.company}</p>
+                          {ad.description && <p className="text-sm text-muted-foreground mt-1 line-clamp-1">{ad.description}</p>}
+                          <div className="flex items-center gap-4 mt-2 text-xs text-muted-foreground">
+                            <span>{ad.clicks} clicks</span>
+                            <a href={ad.linkUrl} target="_blank" rel="noopener noreferrer"
+                              className="flex items-center gap-1 text-blue-500 hover:underline">
+                              <ExternalLink className="w-3 h-3" /> View link
+                            </a>
+                          </div>
+                        </div>
+                        <div className="flex gap-2 flex-shrink-0">
+                          <Button variant="ghost" size="icon" className="rounded-xl w-9 h-9" onClick={() => toggle(ad.id)}>
+                            {ad.active ? <EyeOff className="w-4 h-4 text-muted-foreground" /> : <Eye className="w-4 h-4 text-muted-foreground" />}
+                          </Button>
+                          <Button variant="ghost" size="icon" className="rounded-xl w-9 h-9 hover:bg-red-50 hover:text-red-600"
+                            onClick={() => { remove(ad.id); toast({ title: "Ad removed." }); }}>
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </motion.div>
+      </AnimatePresence>
+    </div>
   );
 }

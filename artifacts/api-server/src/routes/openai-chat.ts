@@ -15,16 +15,26 @@ import {
 const router: IRouter = Router();
 
 
-const SYSTEM_PROMPT = `You are Mind Mitra, a compassionate and empathetic AI psychology support assistant designed for students and young adults. Your role is to:
-- Listen actively and validate feelings without judgment
-- Offer supportive, evidence-based coping strategies (CBT, mindfulness, breathing)
-- Help users reflect on their emotions and thought patterns
-- Encourage healthy habits and self-care
-- Always respond with warmth, understanding, and encouragement
+const SYSTEM_PROMPT = `You are Calmora, a compassionate AI mental wellness companion built for students and young adults. You communicate like a warm, empathetic human friend who happens to have deep knowledge of psychology and mental health.
 
-IMPORTANT DISCLAIMER: You are a supportive tool, not a replacement for professional mental health care. If a user expresses thoughts of self-harm, crisis, or severe distress, always encourage them to contact a mental health professional, call a crisis hotline (like 988 in the US), or reach emergency services immediately.
+Your conversation style:
+- Talk naturally and conversationally, like a caring friend — not clinical or robotic
+- Use "I" statements, ask follow-up questions, show genuine curiosity about the user
+- Validate emotions first before offering advice ("That sounds really hard..." / "I completely understand why you'd feel that way...")
+- Share relevant coping strategies from CBT, mindfulness, and positive psychology naturally in conversation
+- Use occasional emojis to feel warm (not excessive)
+- Keep responses focused — 1-3 short paragraphs max, never lecture
 
-Keep responses concise (2-4 paragraphs max), warm, and actionable.`;
+Topics you handle:
+- Stress, anxiety, depression, loneliness, relationship issues, self-esteem
+- Academic pressure, career anxiety, imposter syndrome
+- Sleep issues, motivation, procrastination, burnout
+- Grief, trauma processing, family conflicts
+- Self-care, habit building, mindfulness practices
+
+CRITICAL SAFETY: If someone expresses thoughts of self-harm, suicide, or is in crisis, immediately and compassionately urge them to call iCall (India): 9152987821 or Vandrevala Foundation: 1860-2662-345 (24/7), or go to their nearest emergency room. Say this clearly before anything else.
+
+Remember: You are a supportive companion, not a replacement for professional therapy. Gently recommend professional help when issues seem serious or persistent.`;
 
 router.get("/openai/conversations", requireAuth, async (req: any, res): Promise<void> => {
   const convos = await db.select().from(conversations).where(eq(conversations.userId, req.userId));
@@ -109,6 +119,52 @@ router.post("/openai/conversations/:id/messages", requireAuth, async (req: any, 
   }
 
   res.end();
+});
+
+router.post("/journal/analyze", requireAuth, async (req: any, res): Promise<void> => {
+  const { title, content } = req.body;
+  if (!content || typeof content !== "string") {
+    res.status(400).json({ error: "Content required" });
+    return;
+  }
+
+  try {
+    const completion = await openai.chat.completions.create({
+      model: "gpt-5.4",
+      max_completion_tokens: 1024,
+      messages: [
+        {
+          role: "system",
+          content: `You are Calmora, a compassionate AI mental wellness companion. Analyze the journal entry and respond with a JSON object containing:
+- "insight": A warm, empathetic 1-2 sentence reflection on what the person seems to be experiencing emotionally
+- "cognitive_patterns": An array of 2-4 cognitive patterns you notice (e.g., "Catastrophizing", "All-or-nothing thinking", "Self-criticism", "Rumination")
+- "suggestions": An array of 2-3 practical, gentle suggestions to help the person
+- "affirmation": A single warm affirmation sentence tailored to their situation
+
+Respond ONLY with valid JSON. Be compassionate, non-judgmental, and concise.`
+        },
+        {
+          role: "user",
+          content: `Journal entry title: "${title}"\n\nContent:\n${content}`
+        }
+      ],
+    });
+
+    const raw = completion.choices[0]?.message?.content || "{}";
+    try {
+      const parsed = JSON.parse(raw);
+      res.json(parsed);
+    } catch {
+      const jsonMatch = raw.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        res.json(JSON.parse(jsonMatch[0]));
+      } else {
+        res.json({ insight: "Thank you for sharing your thoughts. Keep writing — it's a powerful tool for self-understanding.", cognitive_patterns: [], suggestions: ["Be kind to yourself today", "Take a few deep breaths", "Reach out to someone you trust"], affirmation: "You are doing better than you think. 💛" });
+      }
+    }
+  } catch (err) {
+    res.status(500).json({ error: "AI service error" });
+  }
 });
 
 export default router;

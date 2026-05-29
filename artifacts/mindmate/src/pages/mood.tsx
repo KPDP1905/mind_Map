@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useCreateMood, useListMoods, getListMoodsQueryKey } from "@workspace/api-client-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { usePageTheme } from "@/hooks/use-page-theme";
+import { AdBanner } from "@/components/ad-banner";
 import { format } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -175,6 +176,7 @@ export default function MoodPage() {
         <h1 className="text-3xl font-bold tracking-tight text-foreground">Mood Tracker</h1>
         <p className="text-muted-foreground mt-1 text-lg">Check in with yourself. How are you feeling right now?</p>
       </div>
+      <AdBanner />
 
       <Card className="rounded-3xl border-border/50 shadow-sm overflow-hidden">
         <CardContent className="p-6 sm:p-8">
@@ -202,11 +204,12 @@ export default function MoodPage() {
 
             <div>
               <label htmlFor="note" className="block text-sm font-medium text-foreground mb-2">
-                Add a note (optional)
+                What's going on? <span className="text-primary">*</span>
+                <span className="text-xs text-muted-foreground ml-2">(required — describe your mood)</span>
               </label>
               <Textarea
                 id="note"
-                placeholder="What's making you feel this way?"
+                placeholder="Tell me what's making you feel this way... (e.g. stressful exam, good news from a friend, tired from work)"
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 className="min-h-[120px] rounded-xl resize-none border-border/50 focus-visible:ring-primary/30"
@@ -215,7 +218,7 @@ export default function MoodPage() {
 
             <Button
               type="submit"
-              disabled={!selectedMood || createMood.isPending}
+              disabled={!selectedMood || !note.trim() || createMood.isPending}
               className="w-full sm:w-auto rounded-full px-8"
               size="lg"
             >

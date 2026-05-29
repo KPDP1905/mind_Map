@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/use-toast";
+import { usePageTheme } from "@/hooks/use-page-theme";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, Wind, Heart, Star, Timer, Droplets, CheckCircle2, Circle, Play, Pause, RotateCcw, ChevronRight, ChevronLeft } from "lucide-react";
 
@@ -145,7 +146,15 @@ export default function WellnessPage() {
             </CardTitle>
           </CardHeader>
           <CardContent className="flex-1 flex flex-col">
-            <form onSubmit={handleGratitudeSubmit} className="mb-6 flex gap-2">
+            <div className="mb-3 flex flex-wrap gap-1.5">
+              {["My health 💪","My family ❤️","A small win 🎉","Good food 🍽️","Fresh air 🌿","A kind friend 🤝","Sunny day ☀️","A good song 🎵","Clean water 💧","Progress I made 📈"].map(s => (
+                <button key={s} onClick={() => setGratitudeText(s)}
+                  className="text-xs px-2.5 py-1 rounded-full bg-rose-50 text-rose-600 border border-rose-100 hover:bg-rose-100 transition-colors">
+                  {s}
+                </button>
+              ))}
+            </div>
+            <form onSubmit={handleGratitudeSubmit} className="mb-4 flex gap-2">
               <Input
                 placeholder="What are you grateful for today?"
                 value={gratitudeText}
@@ -194,35 +203,58 @@ export default function WellnessPage() {
 
 /* ─── Breathing Orb ─────────────────────────────────────────────────────── */
 function BreathingOrb() {
+  const [running, setRunning] = useState(false);
   const [phase, setPhase] = useState(0);
+  const [countdown, setCountdown] = useState(4);
   const phases = ["Inhale", "Hold", "Exhale", "Hold"];
+  const phaseRef = useRef(0);
+  const countRef = useRef(4);
 
   useEffect(() => {
-    const cycle = () => {
-      setPhase(0);
-      setTimeout(() => setPhase(1), 4000);
-      setTimeout(() => setPhase(2), 8000);
-      setTimeout(() => setPhase(3), 12000);
-    };
-    cycle();
-    const interval = setInterval(cycle, 16000);
-    return () => clearInterval(interval);
-  }, []);
+    if (!running) { setPhase(0); setCountdown(4); return; }
+    const tick = setInterval(() => {
+      countRef.current -= 1;
+      if (countRef.current <= 0) {
+        phaseRef.current = (phaseRef.current + 1) % 4;
+        setPhase(phaseRef.current);
+        countRef.current = 4;
+      }
+      setCountdown(countRef.current);
+    }, 1000);
+    return () => clearInterval(tick);
+  }, [running]);
+
+  const phaseColors = ["#6d9ef5", "#8b63d4", "#f06a9e", "#4db87a"];
 
   return (
-    <div className="relative w-48 h-48 flex items-center justify-center">
-      <motion.div
-        className="absolute w-32 h-32 rounded-full bg-primary/20 blur-md"
-        animate={{ scale: [1, 1.8, 1.8, 1, 1], opacity: [0.3, 0.6, 0.6, 0.3, 0.3] }}
-        transition={{ duration: 16, repeat: Infinity, times: [0, 0.25, 0.5, 0.75, 1], ease: "easeInOut" }}
-      />
-      <motion.div
-        className="absolute w-32 h-32 rounded-full bg-gradient-to-tr from-primary to-secondary shadow-lg flex items-center justify-center"
-        animate={{ scale: [1, 1.8, 1.8, 1, 1] }}
-        transition={{ duration: 16, repeat: Infinity, times: [0, 0.25, 0.5, 0.75, 1], ease: "easeInOut" }}
+    <div className="flex flex-col items-center gap-4">
+      <div className="relative w-44 h-44 flex items-center justify-center">
+        <motion.div
+          className="absolute w-32 h-32 rounded-full blur-xl"
+          style={{ backgroundColor: phaseColors[phase] + "40" }}
+          animate={{ scale: phase === 0 || phase === 2 ? [1, 1.6] : [1.6, 1.6] }}
+          transition={{ duration: phase === 0 || phase === 2 ? 4 : 0.1, ease: "easeInOut" }}
+        />
+        <motion.div
+          className="absolute w-32 h-32 rounded-full shadow-lg flex flex-col items-center justify-center"
+          style={{ background: `linear-gradient(135deg, ${phaseColors[phase]}, ${phaseColors[(phase + 1) % 4]})` }}
+          animate={{ scale: phase === 0 ? [1, 1.6] : phase === 2 ? [1.6, 1] : [1.6, 1.6] }}
+          transition={{ duration: phase === 0 || phase === 2 ? 4 : 0.1, ease: "easeInOut" }}
+        >
+          <span className="text-white font-semibold text-sm tracking-wide">
+            {running ? phases[phase] : "Box Breathing"}
+          </span>
+          {running && <span className="text-white/80 text-xs">{countdown}s</span>}
+        </motion.div>
+      </div>
+      <Button
+        size="sm"
+        onClick={() => { setRunning(r => !r); phaseRef.current = 0; setPhase(0); countRef.current = 4; }}
+        className="rounded-full px-6"
+        style={running ? { background: "#f06a9e" } : {}}
       >
-        <span className="text-white font-medium tracking-wide z-10 text-sm">{phases[phase]}</span>
-      </motion.div>
+        {running ? <><Pause className="w-3.5 h-3.5 mr-1.5" />Stop</> : <><Play className="w-3.5 h-3.5 mr-1.5" />Start</>}
+      </Button>
     </div>
   );
 }
@@ -395,14 +427,49 @@ function WaterTracker() {
 }
 
 /* ─── Daily Wellness Checklist ───────────────────────────────────────────── */
+interface ChecklistDayEntry { checked: Record<string, boolean>; submitted: boolean; }
+
 function DailyChecklist() {
-  const [checked, setChecked] = useDailyReset<Record<string, boolean>>("mm_checklist", {});
+  const today = new Date().toDateString();
+
+  const [history, setHistory] = useState<Record<string, ChecklistDayEntry>>(() => {
+    try { return JSON.parse(localStorage.getItem("calmora_checklist_history") || "{}"); } catch { return {}; }
+  });
+  const [showHistory, setShowHistory] = useState(false);
+
+  const saveHistory = (next: Record<string, ChecklistDayEntry>) => {
+    setHistory(next);
+    localStorage.setItem("calmora_checklist_history", JSON.stringify(next));
+  };
+
+  const todayEntry = history[today] ?? { checked: {}, submitted: false };
+  const checked = todayEntry.checked;
+  const submitted = todayEntry.submitted;
 
   const toggle = (id: string) => {
-    setChecked({ ...checked, [id]: !checked[id] });
+    if (submitted) return;
+    saveHistory({ ...history, [today]: { ...todayEntry, checked: { ...checked, [id]: !checked[id] } } });
+  };
+
+  const handleSubmit = () => {
+    saveHistory({ ...history, [today]: { checked, submitted: true } });
   };
 
   const done = WELLNESS_HABITS.filter(h => checked[h.id]).length;
+
+  // Build 30-day history (excluding today)
+  const past30 = Array.from({ length: 30 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - (i + 1));
+    const key = d.toDateString();
+    const entry = history[key];
+    return {
+      key, label: d.toLocaleDateString("en", { month: "short", day: "numeric" }),
+      done: entry ? Object.values(entry.checked).filter(Boolean).length : null,
+      submitted: entry?.submitted ?? false,
+      total: WELLNESS_HABITS.length,
+    };
+  }).reverse();
 
   return (
     <Card className="rounded-3xl border-border/50 shadow-sm">
@@ -412,44 +479,93 @@ function DailyChecklist() {
             <CheckCircle2 className="w-5 h-5 text-green-500" />
             Daily Wellness Checklist
           </CardTitle>
-          <span className="text-sm font-semibold text-muted-foreground">{done}/{WELLNESS_HABITS.length}</span>
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-semibold text-muted-foreground">{done}/{WELLNESS_HABITS.length}</span>
+            <button onClick={() => setShowHistory(h => !h)}
+              className="text-xs text-primary underline underline-offset-2">
+              {showHistory ? "Hide" : "30-Day History"}
+            </button>
+          </div>
         </div>
         <Progress value={(done / WELLNESS_HABITS.length) * 100} className="h-1.5 mt-2" />
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+      <CardContent className="space-y-4">
+        {submitted ? (
+          <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+            className="flex items-center gap-3 p-4 rounded-2xl bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800">
+            <CheckCircle2 className="w-5 h-5 text-green-500 flex-shrink-0" />
+            <div>
+              <p className="font-semibold text-green-700 dark:text-green-400 text-sm">
+                Today's checklist submitted! ({done}/{WELLNESS_HABITS.length} habits)
+              </p>
+              <p className="text-xs text-green-600/70 mt-0.5">Come back tomorrow for a fresh list 🌱</p>
+            </div>
+          </motion.div>
+        ) : null}
+
+        <div className={`grid grid-cols-1 sm:grid-cols-2 gap-2 ${submitted ? "opacity-60 pointer-events-none" : ""}`}>
           {WELLNESS_HABITS.map(h => (
-            <motion.button
-              key={h.id}
-              whileTap={{ scale: 0.97 }}
+            <motion.button key={h.id} whileTap={{ scale: submitted ? 1 : 0.97 }}
               onClick={() => toggle(h.id)}
               className={`flex items-center gap-3 p-3.5 rounded-2xl border text-left transition-all ${
                 checked[h.id]
                   ? "bg-green-50 dark:bg-green-950/20 border-green-200 dark:border-green-800"
                   : "bg-muted/20 border-border/50 hover:bg-muted/40"
-              }`}
-            >
+              }`}>
               <span className="text-xl">{h.emoji}</span>
               <span className={`text-sm font-medium flex-1 ${checked[h.id] ? "line-through text-muted-foreground" : "text-foreground"}`}>
                 {h.label}
               </span>
               {checked[h.id]
                 ? <CheckCircle2 className="w-4 h-4 text-green-500 flex-shrink-0" />
-                : <Circle className="w-4 h-4 text-muted-foreground/40 flex-shrink-0" />
-              }
+                : <Circle className="w-4 h-4 text-muted-foreground/40 flex-shrink-0" />}
             </motion.button>
           ))}
         </div>
-        {done === WELLNESS_HABITS.length && (
-          <motion.p
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-center mt-4 text-green-600 dark:text-green-400 font-semibold text-sm"
-          >
-            🎉 Perfect wellness day! You're taking incredible care of yourself.
+
+        {!submitted && (
+          <div className="flex items-center gap-3">
+            <Button onClick={handleSubmit} disabled={done === 0}
+              className="rounded-full px-6 bg-green-600 hover:bg-green-700 text-white flex-1 sm:flex-none">
+              <CheckCircle2 className="w-4 h-4 mr-2" />
+              Submit Today's Checklist
+            </Button>
+            <span className="text-xs text-muted-foreground">Once submitted, it locks for the day</span>
+          </div>
+        )}
+
+        {done === WELLNESS_HABITS.length && !submitted && (
+          <motion.p initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }}
+            className="text-center text-green-600 dark:text-green-400 font-semibold text-sm">
+            🎉 Perfect day! Don't forget to submit!
           </motion.p>
         )}
-        <p className="text-xs text-muted-foreground mt-3 text-center">Checklist resets every day at midnight.</p>
+
+        {/* 30-day history */}
+        <AnimatePresence>
+          {showHistory && (
+            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}>
+              <div className="pt-4 border-t border-border/50">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Past 30 Days</p>
+                <div className="grid grid-cols-5 gap-1.5">
+                  {past30.map(d => (
+                    <div key={d.key} className={`p-2 rounded-xl text-center border text-xs ${
+                      d.done === null ? "bg-muted/20 border-border/30" :
+                      d.submitted && d.done === d.total ? "bg-green-100 dark:bg-green-950/30 border-green-200" :
+                      d.submitted ? "bg-blue-50 dark:bg-blue-950/20 border-blue-100" :
+                      "bg-muted/20 border-border/30"
+                    }`}>
+                      <p className="font-medium text-foreground">{d.label}</p>
+                      <p className={`text-xs ${d.done !== null ? "text-foreground font-bold" : "text-muted-foreground"}`}>
+                        {d.done !== null ? `${d.done}/${d.total}` : "—"}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </CardContent>
     </Card>
   );

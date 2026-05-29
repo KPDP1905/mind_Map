@@ -11,6 +11,7 @@ import {
   CartesianGrid, BarChart, Bar, Cell, RadarChart, PolarGrid, PolarAngleAxis, Radar
 } from "recharts";
 import { usePageTheme } from "@/hooks/use-page-theme";
+import { AdBanner } from "@/components/ad-banner";
 
 function useLS<T>(key: string, def: T) {
   const [v, setV] = useState<T>(() => {
@@ -216,6 +217,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500 relative">
+      <AdBanner className="mt-0" />
       {/* Decorative sparkles */}
       <div className="pointer-events-none absolute -top-4 right-0 w-64 h-64 opacity-30" style={{ background: "radial-gradient(circle, rgba(196,120,138,0.3) 0%, transparent 70%)" }} />
       {[...Array(6)].map((_, i) => (

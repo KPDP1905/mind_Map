@@ -4,7 +4,7 @@ import { usePageTheme } from "@/hooks/use-page-theme";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Play, Pause, RotateCcw, Wind, Brain, Moon, Zap, Heart, Flame } from "lucide-react";
+import { Play, Pause, RotateCcw, Wind, Brain, Moon, Zap, Heart, Flame, Volume2, VolumeX } from "lucide-react";
 
 function useLS<T>(key: string, def: T) {
   const [v, setV] = useState<T>(() => {
@@ -15,12 +15,12 @@ function useLS<T>(key: string, def: T) {
 }
 
 const CATEGORIES = [
-  { id: "sleep",    label: "Sleep",         emoji: "😴", icon: Moon,   color: "from-indigo-500 to-purple-600",  bg: "bg-indigo-50 dark:bg-indigo-950/30",  text: "text-indigo-600 dark:text-indigo-400",  desc: "Wind down and fall asleep faster" },
-  { id: "stress",   label: "Stress Relief", emoji: "🌊", icon: Heart,  color: "from-blue-500 to-cyan-500",      bg: "bg-blue-50 dark:bg-blue-950/30",      text: "text-blue-600 dark:text-blue-400",      desc: "Release tension and find calm" },
-  { id: "anxiety",  label: "Anxiety",       emoji: "🌿", icon: Wind,   color: "from-green-500 to-teal-500",     bg: "bg-green-50 dark:bg-green-950/30",    text: "text-green-600 dark:text-green-400",    desc: "Ground yourself in the present" },
-  { id: "focus",    label: "Focus",         emoji: "🎯", icon: Brain,  color: "from-amber-500 to-orange-500",   bg: "bg-amber-50 dark:bg-amber-950/30",    text: "text-amber-600 dark:text-amber-400",    desc: "Sharpen attention and clarity" },
-  { id: "breathing",label: "Breathing",     emoji: "💨", icon: Zap,    color: "from-rose-500 to-pink-500",      bg: "bg-rose-50 dark:bg-rose-950/30",      text: "text-rose-600 dark:text-rose-400",      desc: "Control breath to calm the mind" },
-  { id: "energy",   label: "Energy Boost",  emoji: "⚡", icon: Flame,  color: "from-yellow-500 to-amber-500",   bg: "bg-yellow-50 dark:bg-yellow-950/30",  text: "text-yellow-600 dark:text-yellow-400",  desc: "Revitalize and re-energize" },
+  { id: "sleep",    label: "Sleep",         emoji: "😴", icon: Moon,   color: "from-indigo-500 to-purple-600",  bg: "bg-indigo-50 dark:bg-indigo-950/30",  text: "text-indigo-600 dark:text-indigo-400",  desc: "Wind down and fall asleep faster",   ytId: "q76bMs-NwRk" },
+  { id: "stress",   label: "Stress Relief", emoji: "🌊", icon: Heart,  color: "from-blue-500 to-cyan-500",      bg: "bg-blue-50 dark:bg-blue-950/30",      text: "text-blue-600 dark:text-blue-400",      desc: "Release tension and find calm",       ytId: "mPZkdNFkNps" },
+  { id: "anxiety",  label: "Anxiety",       emoji: "🌿", icon: Wind,   color: "from-green-500 to-teal-500",     bg: "bg-green-50 dark:bg-green-950/30",    text: "text-green-600 dark:text-green-400",    desc: "Ground yourself in the present",      ytId: "wzjWIxXBs_s" },
+  { id: "focus",    label: "Focus",         emoji: "🎯", icon: Brain,  color: "from-amber-500 to-orange-500",   bg: "bg-amber-50 dark:bg-amber-950/30",    text: "text-amber-600 dark:text-amber-400",    desc: "Sharpen attention and clarity",       ytId: "WPni755-Krg" },
+  { id: "breathing",label: "Breathing",     emoji: "💨", icon: Zap,    color: "from-rose-500 to-pink-500",      bg: "bg-rose-50 dark:bg-rose-950/30",      text: "text-rose-600 dark:text-rose-400",      desc: "Control breath to calm the mind",     ytId: "1ZYbU82GVz4" },
+  { id: "energy",   label: "Energy Boost",  emoji: "⚡", icon: Flame,  color: "from-yellow-500 to-amber-500",   bg: "bg-yellow-50 dark:bg-yellow-950/30",  text: "text-yellow-600 dark:text-yellow-400",  desc: "Revitalize and re-energize",          ytId: "5qap5aO4i9A" },
 ];
 
 const SESSIONS: Record<string, Array<{ title: string; duration: number; guide: string[] }>> = {
@@ -184,6 +184,7 @@ export default function MeditationPage() {
   const [streak, setStreak] = useLS<number>("mm_meditation_streak", 0);
   const [lastDate, setLastDate] = useLS<string>("mm_meditation_lastdate", "");
   const [showComplete, setShowComplete] = useState(false);
+  const [soundOn, setSoundOn] = useState(false);
 
   const handleComplete = () => {
     const today = new Date().toDateString();
@@ -246,13 +247,36 @@ export default function MeditationPage() {
                 <CardTitle className="text-white text-xl">{sessions[activeSession].title}</CardTitle>
                 <p className="text-white/70 text-sm mt-1">{sessions[activeSession].duration} minute session</p>
               </div>
-              <Button variant="ghost" className="text-white hover:bg-white/20 rounded-full" onClick={() => setActiveSession(null)}>
-                ✕ Close
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="sm"
+                  className={`text-white hover:bg-white/20 rounded-full gap-2 ${soundOn ? "bg-white/20" : ""}`}
+                  onClick={() => setSoundOn(s => !s)}
+                  title={soundOn ? "Stop ambient sound" : "Play ambient sound"}>
+                  {soundOn ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+                  <span className="text-xs hidden sm:inline">{soundOn ? "Sound On" : "Sound Off"}</span>
+                </Button>
+                <Button variant="ghost" className="text-white hover:bg-white/20 rounded-full" onClick={() => { setActiveSession(null); setSoundOn(false); }}>
+                  ✕ Close
+                </Button>
+              </div>
             </div>
           </CardHeader>
-          <CardContent className="p-8">
+          <CardContent className="p-8 space-y-6">
             <SessionTimer session={sessions[activeSession]} onComplete={handleComplete} />
+            {soundOn && (
+              <div className="rounded-2xl overflow-hidden border border-border/30 shadow-sm">
+                <div className="flex items-center gap-2 px-3 py-2 bg-muted/30 text-xs text-muted-foreground">
+                  <Volume2 className="w-3.5 h-3.5" /> Ambient Sound — {cat.label}
+                  <span className="ml-auto">via YouTube</span>
+                </div>
+                <iframe
+                  src={`https://www.youtube.com/embed/${cat.ytId}?autoplay=1&mute=0&controls=1&loop=1&playlist=${cat.ytId}`}
+                  className="w-full h-24"
+                  allow="autoplay; encrypted-media"
+                  title={`${cat.label} ambient sound`}
+                />
+              </div>
+            )}
           </CardContent>
         </Card>
       ) : selectedCategory && cat ? (

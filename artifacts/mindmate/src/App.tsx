@@ -20,6 +20,9 @@ import GamesPage from "./pages/games";
 import MeditationPage from "./pages/meditation";
 import PeriodTrackerPage from "./pages/period-tracker";
 import LoginPage from "./pages/login";
+import WaterPage from "./pages/water";
+import SleepPage from "./pages/sleep";
+import PsychologyPage from "./pages/psychology";
 
 const queryClient = new QueryClient();
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -58,6 +61,9 @@ function AppRoutes() {
       <Route path="/profile"><AuthenticatedRoute component={ProfilePage} /></Route>
       <Route path="/games"><AuthenticatedRoute component={GamesPage} /></Route>
       <Route path="/admin"><AuthenticatedRoute component={AdminPage} /></Route>
+      <Route path="/water"><AuthenticatedRoute component={WaterPage} /></Route>
+      <Route path="/sleep"><AuthenticatedRoute component={SleepPage} /></Route>
+      <Route path="/psychology"><AuthenticatedRoute component={PsychologyPage} /></Route>
 
       <Route>
         <div className="flex h-screen items-center justify-center bg-background">

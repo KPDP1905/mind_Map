@@ -16,8 +16,12 @@ import {
   Sun,
   Wind,
   FlowerIcon,
-  Languages
+  Languages,
+  Droplets,
+  BedDouble,
+  GraduationCap
 } from "lucide-react";
+import { LANGUAGES } from "@/contexts/language-context";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useTheme } from "@/contexts/theme-context";
@@ -46,6 +50,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     { href: "/journal",          label: t("journal"),        icon: BookOpen },
     { href: "/wellness",         label: t("wellnessTools"),  icon: Sparkles },
     { href: "/meditation",       label: t("meditation"),     icon: Wind },
+    { href: "/water",            label: t("water"),          icon: Droplets },
+    { href: "/sleep",            label: t("sleep"),          icon: BedDouble },
+    { href: "/psychology",       label: t("psychology"),     icon: GraduationCap },
     { href: "/period-tracker",   label: t("periodTracker"),  icon: FlowerIcon },
     { href: "/games",            label: t("mindGames"),      icon: Gamepad2 },
     { href: "/profile",          label: t("profile"),        icon: User },
@@ -126,15 +133,18 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             {theme === "dark" ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             {theme === "dark" ? "Light Mode" : "Dark Mode"}
           </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="flex-1 justify-start gap-2 rounded-xl text-muted-foreground hover:text-foreground text-xs hover:bg-rose-50/60"
-            onClick={() => setLang(lang === "en" ? "hi" : "en")}
-          >
-            <Languages className="w-4 h-4" />
-            {lang === "en" ? "हिंदी" : "English"}
-          </Button>
+          <div className="flex-1 relative">
+            <Languages className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none" />
+            <select
+              value={lang}
+              onChange={e => setLang(e.target.value as typeof lang)}
+              className="w-full pl-8 pr-2 py-1.5 rounded-xl text-xs text-muted-foreground bg-transparent hover:bg-rose-50/60 border border-transparent hover:border-rose-100 cursor-pointer appearance-none focus:outline-none"
+            >
+              {LANGUAGES.map(l => (
+                <option key={l.code} value={l.code}>{l.flag} {l.nativeLabel}</option>
+              ))}
+            </select>
+          </div>
         </div>
 
         <div className="flex items-center gap-3 px-3 py-2 rounded-xl"

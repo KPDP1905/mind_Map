@@ -141,6 +141,7 @@ export function ChatSession({ id }: { id: string }) {
       const response = await fetch(`${BASE}/api/openai/conversations/${convId}/messages`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
+        credentials: "include",
         body: JSON.stringify({ content: userMessage }),
       });
 
