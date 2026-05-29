@@ -46,10 +46,10 @@ export default function LandingPage() {
           <span className="text-xl font-bold text-white tracking-tight">Mind Mitra</span>
         </div>
         <div className="flex items-center gap-3">
-          <Link href="/sign-in">
+          <Link href="/login">
             <Button variant="ghost" className="text-white/70 hover:text-white hover:bg-white/10 rounded-full">Log in</Button>
           </Link>
-          <Link href="/sign-up">
+          <Link href="/login">
             <Button className="bg-white text-[#06001a] hover:bg-white/90 rounded-full px-6 font-semibold shadow-lg shadow-white/10">
               Get Started
             </Button>
@@ -87,13 +87,13 @@ export default function LandingPage() {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link href="/sign-up">
+            <Link href="/login">
               <Button size="lg" className="w-full sm:w-auto h-14 px-10 bg-white text-[#06001a] hover:bg-white/90 rounded-full text-lg font-semibold shadow-2xl shadow-white/10 hover:-translate-y-0.5 transition-all group">
                 Start your journey
                 <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-0.5 transition-transform" />
               </Button>
             </Link>
-            <Link href="/sign-in">
+            <Link href="/login">
               <Button size="lg" variant="outline" className="w-full sm:w-auto h-14 px-8 rounded-full text-lg border-white/20 text-white bg-white/5 hover:bg-white/10 backdrop-blur-sm">
                 Welcome back
               </Button>
